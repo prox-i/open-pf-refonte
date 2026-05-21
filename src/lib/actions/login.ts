@@ -8,18 +8,20 @@ export async function loginAction(
   password: string,
 ): Promise<{ error: string } | null> {
   try {
-    await signIn('credentials', {
-      email,
-      password,
-      redirectTo: '/admin',
-    })
+    await signIn('credentials', { email, password, redirectTo: '/admin' })
     return null
   } catch (err) {
-    // NEXT_REDIRECT must be rethrown — it's how Next.js handles server-side redirects
-    if (err instanceof Error && err.message === 'NEXT_REDIRECT') throw err
+    // Next.js redirect() throws an error with a digest starting with NEXT_REDIRECT
+    // We MUST re-throw it so the framework can handle the navigation
+    const digest = (err as { digest?: string }).digest ?? ''
+    if (digest.startsWith('NEXT_REDIRECT')) throw err
+
     if (err instanceof AuthError) {
       return { error: 'Email ou mot de passe incorrect.' }
     }
+
+    // Log unexpected errors server-side
+    console.error('[loginAction] unexpected error:', err)
     return { error: 'Une erreur est survenue. Réessayez.' }
   }
 }

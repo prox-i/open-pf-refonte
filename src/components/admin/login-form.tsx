@@ -3,13 +3,10 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { signIn } from 'next-auth/react'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { adminLoginSchema, type AdminLoginData } from '@/lib/validations/admin'
+import { loginAction } from '@/lib/actions/login'
 
 export function LoginForm() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
   const [error, setError] = useState<string | null>(null)
 
   const form = useForm<AdminLoginData>({
@@ -19,20 +16,11 @@ export function LoginForm() {
 
   async function handleSubmit(data: AdminLoginData) {
     setError(null)
-    const result = await signIn('credentials', {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    })
-
+    const result = await loginAction(data.email, data.password)
     if (result?.error) {
-      setError('Email ou mot de passe incorrect.')
-      return
+      setError(result.error)
     }
-
-    const callbackUrl = searchParams.get('callbackUrl') ?? '/admin'
-    router.push(callbackUrl)
-    router.refresh()
+    // On success, loginAction redirects server-side to /admin
   }
 
   return (

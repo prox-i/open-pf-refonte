@@ -85,56 +85,50 @@ export async function submitMemberProfile(rawToken: string, raw: unknown): Promi
   const data = parsed.data
   const db = getDb()
 
-  let memberName = ''
+  // neon-http driver does not support transactions — sequential operations
+  const [updated] = await db
+    .update(members)
+    .set({
+      description: data.description ?? null,
+      websiteUrl: data.websiteUrl ?? null,
+      linkedinUrl: data.linkedinUrl ?? null,
+      address: data.address ?? null,
+      yearFounded: data.yearFounded ?? null,
+      employeeCount: data.employeeCount ?? null,
+      logoUrl: data.logoUrl ?? null,
+      updatedAt: new Date(),
+    })
+    .where(eq(members.id, token.memberId))
+    .returning({ name: members.name })
 
-  await db.transaction(async (tx) => {
-    const [updated] = await tx
-      .update(members)
-      .set({
-        description: data.description ?? null,
-        websiteUrl: data.websiteUrl ?? null,
-        linkedinUrl: data.linkedinUrl ?? null,
-        address: data.address ?? null,
-        yearFounded: data.yearFounded ?? null,
-        employeeCount: data.employeeCount ?? null,
-        logoUrl: data.logoUrl ?? null,
-        updatedAt: new Date(),
-      })
-      .where(eq(members.id, token.memberId))
-      .returning({ name: members.name })
+  if (!updated) throw new Error('Member not found')
+  const memberName = updated.name
 
-    if (!updated) throw new Error('Member not found')
-    memberName = updated.name
+  await db.delete(memberActivities).where(eq(memberActivities.memberId, token.memberId))
+  if (data.activityDomains.length > 0) {
+    await db.insert(memberActivities).values(
+      data.activityDomains.map((domainId) => ({
+        memberId: token.memberId,
+        domainId,
+      })),
+    )
+  }
 
-    // Replace activity domains
-    await tx.delete(memberActivities).where(eq(memberActivities.memberId, token.memberId))
-    if (data.activityDomains.length > 0) {
-      await tx.insert(memberActivities).values(
-        data.activityDomains.map((domainId) => ({
-          memberId: token.memberId,
-          domainId,
-        })),
-      )
-    }
+  await db.delete(memberCertifications).where(eq(memberCertifications.memberId, token.memberId))
+  if (data.certifications.length > 0) {
+    await db.insert(memberCertifications).values(
+      data.certifications.map((certId) => ({
+        memberId: token.memberId,
+        certificationId: certId,
+        otherLabel: certId === 'autre' ? (data.certificationOtherLabel ?? null) : null,
+      })),
+    )
+  }
 
-    // Replace certifications
-    await tx.delete(memberCertifications).where(eq(memberCertifications.memberId, token.memberId))
-    if (data.certifications.length > 0) {
-      await tx.insert(memberCertifications).values(
-        data.certifications.map((certId) => ({
-          memberId: token.memberId,
-          certificationId: certId,
-          otherLabel: certId === 'autre' ? (data.certificationOtherLabel ?? null) : null,
-        })),
-      )
-    }
-
-    // Mark token as used
-    await tx
-      .update(memberTokens)
-      .set({ usedAt: new Date() })
-      .where(eq(memberTokens.id, token.tokenId))
-  })
+  await db
+    .update(memberTokens)
+    .set({ usedAt: new Date() })
+    .where(eq(memberTokens.id, token.tokenId))
 
   return { success: true, memberName }
 }

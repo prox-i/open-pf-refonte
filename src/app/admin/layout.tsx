@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { auth } from '@/lib/auth/session'
 import { AdminSidebar } from '@/components/admin/admin-sidebar'
 import { getDb } from '@/lib/db'
@@ -15,6 +16,14 @@ async function getAdminCounts() {
 }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const headersList = await headers()
+  const pathname = headersList.get('x-pathname') ?? ''
+
+  // Login page uses its own (auth)/layout — skip auth check to avoid redirect loop
+  if (pathname === '/admin/login') {
+    return <>{children}</>
+  }
+
   const session = await auth()
   if (!session?.user) redirect('/admin/login')
 

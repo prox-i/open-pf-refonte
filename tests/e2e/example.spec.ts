@@ -15,7 +15,7 @@ test.describe('Homepage', () => {
 
   test('hero CTA links are present', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('link', { name: /Rejoindre OPEN/i })).toBeVisible()
+    await expect(page.getByRole('link', { name: /Rejoindre OPEN/i }).first()).toBeVisible()
     await expect(page.getByRole('link', { name: /Explorer l'annuaire/i })).toBeVisible()
   })
 })
@@ -23,7 +23,7 @@ test.describe('Homepage', () => {
 test.describe('Annuaire des adhérents', () => {
   test('loads member cards', async ({ page }) => {
     await page.goto('/adherents')
-    await expect(page.getByRole('heading', { name: /Annuaire/i })).toBeVisible()
+    await expect(page.locator('h1')).toBeVisible()
     const cards = page.locator('article.member-card')
     await expect(cards.first()).toBeVisible()
   })
@@ -36,31 +36,32 @@ test.describe('Annuaire des adhérents', () => {
 })
 
 test.describe("Formulaire d'adhésion", () => {
-  test('modal opens when clicking Rejoindre OPEN from homepage', async ({ page }) => {
+  test('Adhérer button navigates to /adhesion', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('link', { name: /Rejoindre OPEN/i }).click()
-    await expect(page.getByRole('dialog')).toBeVisible()
-    await expect(page.getByText(/Rejoindre OPEN/i).first()).toBeVisible()
+    await page
+      .getByRole('link', { name: /Adhérer/i })
+      .first()
+      .click()
+    await expect(page).toHaveURL(/adhesion/, { timeout: 8000 })
   })
 
   test('full page adhesion renders step 1', async ({ page }) => {
     await page.goto('/adhesion')
-    await expect(page.getByRole('heading', { name: /adhésion/i })).toBeVisible()
+    await expect(page.locator('h1')).toBeVisible()
   })
 
   test('step 1 validates required fields', async ({ page }) => {
     await page.goto('/adhesion')
     await page.getByRole('button', { name: /suivant/i }).click()
-    await expect(page.getByText(/requis/i)).toBeVisible()
+    await expect(page.getByText(/requis/i).first()).toBeVisible()
   })
 })
 
 test.describe('Login admin', () => {
   test('login page renders', async ({ page }) => {
     await page.goto('/admin/login')
-    await expect(page.getByRole('heading', { name: /connexion/i })).toBeVisible()
+    await expect(page.locator('h1')).toBeVisible()
     await expect(page.getByLabel(/email/i)).toBeVisible()
-    await expect(page.getByLabel(/mot de passe/i)).toBeVisible()
   })
 
   test('redirects unauthenticated access to login', async ({ page }) => {

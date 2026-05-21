@@ -29,6 +29,8 @@ export function MemberActions({ memberId, status }: MemberActionsProps) {
     setLoading(null)
     if (!result.success) {
       setMessage(result.error ?? 'Erreur.')
+    } else if (label === 'approve' || label === 'reject') {
+      router.push('/admin/demandes')
     } else {
       router.refresh()
     }

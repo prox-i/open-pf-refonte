@@ -38,11 +38,11 @@ export function LoginForm() {
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} noValidate className="admin-login-form">
       <div className="form-field">
-        <label htmlFor="email">Email</label>
+        <label htmlFor="email">Identifiant</label>
         <input
           id="email"
-          type="email"
-          autoComplete="email"
+          type="text"
+          autoComplete="username"
           aria-describedby={error ? 'login-error' : undefined}
           {...form.register('email')}
         />

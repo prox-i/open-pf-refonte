@@ -20,6 +20,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${member.name} – Adhérent OPEN PF`,
     description: member.description ?? `${member.name} est membre du réseau OPEN PF.`,
+    openGraph: {
+      title: `${member.name} – Adhérent OPEN PF`,
+      description: member.description ?? `${member.name} est membre du réseau OPEN PF.`,
+      type: 'profile',
+    },
   }
 }
 
@@ -28,8 +33,27 @@ export default async function MemberPage({ params }: Props) {
   const member = MEMBERS.find((m) => m.slug === slug)
   if (!member) notFound()
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Accueil', item: 'https://open.pf' },
+      { '@type': 'ListItem', position: 2, name: 'Adhérents', item: 'https://open.pf/adherents' },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: member.name,
+        item: `https://open.pf/adherents/${slug}`,
+      },
+    ],
+  }
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <section className="hero hero-simple">
         <div className="hero-inner container">
           <div>

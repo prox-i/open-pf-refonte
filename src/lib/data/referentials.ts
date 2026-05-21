@@ -35,3 +35,24 @@ export const ACTIVITY_DOMAINS = [
 ] as const
 
 export type ActivityDomainId = (typeof ACTIVITY_DOMAINS)[number]['id']
+
+export const CERTIFICATIONS = [
+  { id: 'iso27001', label: 'ISO 27001' },
+  { id: 'iso9001', label: 'ISO 9001' },
+  { id: 'hds', label: 'HDS (Hébergeur de Données de Santé)' },
+  { id: 'pci-dss', label: 'PCI-DSS' },
+  { id: 'anssi-pssie', label: 'ANSSI / PSSIE' },
+  { id: 'cisco', label: 'Cisco Partner' },
+  { id: 'microsoft', label: 'Microsoft Partner' },
+  { id: 'aws', label: 'AWS Partner' },
+  { id: 'google-cloud', label: 'Google Cloud Partner' },
+  { id: 'oscp', label: 'OSCP' },
+  { id: 'ceh', label: 'CEH' },
+  { id: 'cisa', label: 'CISA' },
+  { id: 'cissp', label: 'CISSP' },
+  { id: 'rgpd-dpo', label: 'DPO certifié RGPD' },
+  { id: 'qualiopi', label: 'Qualiopi' },
+  { id: 'autre', label: 'Autre (préciser)' },
+] as const
+
+export type CertificationId = (typeof CERTIFICATIONS)[number]['id']

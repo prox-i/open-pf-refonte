@@ -225,6 +225,17 @@ export const adminUsers = pgTable('admin_users', {
   lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
 })
 
+export const memberTokens = pgTable('member_tokens', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  memberId: uuid('member_id')
+    .notNull()
+    .references(() => members.id, { onDelete: 'cascade' }),
+  tokenHash: varchar('token_hash', { length: 64 }).notNull().unique(), // SHA-256 hex
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  usedAt: timestamp('used_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
 export const reminderLogs = pgTable('reminder_logs', {
   id: uuid('id').primaryKey().defaultRandom(),
   memberId: uuid('member_id')

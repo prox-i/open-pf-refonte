@@ -34,14 +34,14 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
 })
 
-// Skip validation in test environment so Vitest/Playwright don't need real secrets
+// Skip validation in test and during Next.js static build (no .env.local needed at build time)
 const isTest = process.env['NODE_ENV'] === 'test'
+const isBuild = process.env['NEXT_PHASE'] === 'phase-production-build'
+const skip = isTest || isBuild
 
-const parsed = isTest
-  ? envSchema.partial().safeParse(process.env)
-  : envSchema.safeParse(process.env)
+const parsed = skip ? envSchema.partial().safeParse(process.env) : envSchema.safeParse(process.env)
 
-if (!parsed.success && !isTest) {
+if (!parsed.success && !skip) {
   console.error('❌ Invalid environment variables:')
   console.error(parsed.error.flatten().fieldErrors)
   throw new Error('Invalid environment variables — check your .env.local file')

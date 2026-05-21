@@ -15,6 +15,13 @@
       "when": 1779348393527,
       "tag": "0001_keen_the_executioner",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779349315605,
+      "tag": "0002_sour_thing",
+      "breakpoints": true
     }
   ]
 }

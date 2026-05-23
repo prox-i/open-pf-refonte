@@ -699,6 +699,11 @@ p {
   gap: 6px;
   text-decoration: none;
 }
+.card-link:focus-visible {
+  outline: 3px solid rgba(0, 87, 216, 0.35);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
 .mission-card {
   min-height: 252px;
 }
@@ -978,6 +983,10 @@ p {
   background: var(--open-magenta);
   border-color: var(--open-magenta);
   color: white;
+}
+.filter-chip:focus-visible {
+  outline: 3px solid rgba(0, 87, 216, 0.35);
+  outline-offset: 3px;
 }
 .sr-only {
   position: absolute;

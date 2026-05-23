@@ -24,8 +24,8 @@ export function SiteFooter() {
         </div>
 
         {/* Le réseau */}
-        <div>
-          <h2>Le réseau</h2>
+        <nav aria-labelledby="footer-reseau">
+          <h2 id="footer-reseau">Le réseau</h2>
           <ul className="footer-links">
             <li>
               <Link href="/reseau">Qui sommes-nous&nbsp;?</Link>
@@ -40,11 +40,11 @@ export function SiteFooter() {
               <Link href="/adhesion">Nous rejoindre</Link>
             </li>
           </ul>
-        </div>
+        </nav>
 
         {/* Adhérents */}
-        <div>
-          <h2>Adhérents</h2>
+        <nav aria-labelledby="footer-adherents">
+          <h2 id="footer-adherents">Adhérents</h2>
           <ul className="footer-links">
             <li>
               <Link href="/adherents">Annuaire des adhérents</Link>
@@ -56,11 +56,11 @@ export function SiteFooter() {
               <Link href="/adhesion">Devenir adhérent</Link>
             </li>
           </ul>
-        </div>
+        </nav>
 
         {/* Ressources */}
-        <div>
-          <h2>Ressources</h2>
+        <nav aria-labelledby="footer-ressources">
+          <h2 id="footer-ressources">Ressources</h2>
           <ul className="footer-links">
             <li>
               <Link href="/actualites">Actualités</Link>
@@ -75,12 +75,12 @@ export function SiteFooter() {
               <Link href="/evenements">Événements</Link>
             </li>
           </ul>
-        </div>
+        </nav>
 
         {/* Contact */}
         <div>
-          <h2>Contact</h2>
-          <ul className="footer-links">
+          <h2 id="footer-contact">Contact</h2>
+          <ul className="footer-links" aria-labelledby="footer-contact">
             <li>
               Papeete, Tahiti
               <br />

@@ -799,12 +799,12 @@ p {
   position: relative;
 }
 .showcase-link .member-logo-wrap {
-  height: 180px;
+  /* flex: 1 absorbs extra height when CSS Grid stretches the card row */
+  flex: 1;
+  min-height: 140px;
   border-radius: 0;
   border: none;
   border-bottom: 1px solid var(--line);
-  /* background intentionally unset — real logos inherit base white;
-     fallbacks use their inline palette color (inline > class) */
 }
 .showcase-meta {
   display: flex;
@@ -812,6 +812,7 @@ p {
   gap: 3px;
   padding: 12px 16px 14px;
   background: var(--navy);
+  flex-shrink: 0;
 }
 .showcase-name {
   font-size: 13px;
@@ -851,11 +852,12 @@ p {
   box-shadow: 0 14px 40px rgba(5, 15, 46, 0.11);
 }
 .member-card-v .member-logo-wrap {
-  height: 180px;
+  height: 140px;
   border-radius: 20px 20px 0 0;
   border: none;
   border-bottom: 1px solid var(--line);
   background: #fff;
+  flex-shrink: 0;
 }
 .member-card-v-body {
   padding: 22px;

@@ -49,7 +49,7 @@ export function MemberLogo({ name, logoUrl, sizes, priority = false, size }: Mem
           alt={`Logo ${name}`}
           fill
           sizes={sizes ?? '(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 200px'}
-          style={{ objectFit: 'contain', padding: '20px' }}
+          style={{ objectFit: 'contain', padding: '10px' }}
           priority={priority}
         />
       </div>

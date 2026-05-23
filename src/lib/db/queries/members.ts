@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, ilike, inArray, isNotNull, ne, or } from 'drizzle-orm'
 import { getDb } from '@/lib/db'
 import { activityDomains, memberActivities, memberContacts, members } from '@/lib/db/schema'
+import { seededShuffle } from '@/lib/random/seeded-shuffle'
 
 // Publication governance: all public queries filter on status = 'active'.
 // The lifecycle is draft → submitted → active ↔ inactive (see schema.ts).
@@ -24,19 +25,21 @@ export async function getActiveMembers() {
     .orderBy(asc(members.name))
 }
 
-export async function getFeaturedMembers(limit = 12) {
+export async function getFeaturedMembers(limit = 12, options?: { seed?: string }) {
   const db = getDb()
-  const list = await db
-    .select({
-      id: members.id,
-      slug: members.slug,
-      name: members.name,
-      logoUrl: members.logoUrl,
-    })
-    .from(members)
-    .where(and(eq(members.status, 'active'), isNotNull(members.logoUrl)))
-    .orderBy(asc(members.name))
-    .limit(limit)
+  // Fetch the full pool when shuffling; DB-limit when deterministic order suffices.
+  const list = options?.seed
+    ? await db
+        .select({ id: members.id, slug: members.slug, name: members.name, logoUrl: members.logoUrl })
+        .from(members)
+        .where(and(eq(members.status, 'active'), isNotNull(members.logoUrl)))
+        .orderBy(asc(members.name))
+    : await db
+        .select({ id: members.id, slug: members.slug, name: members.name, logoUrl: members.logoUrl })
+        .from(members)
+        .where(and(eq(members.status, 'active'), isNotNull(members.logoUrl)))
+        .orderBy(asc(members.name))
+        .limit(limit)
 
   if (list.length === 0) return []
 
@@ -52,7 +55,9 @@ export async function getFeaturedMembers(limit = 12) {
     if (!domainByMember.has(a.memberId)) domainByMember.set(a.memberId, a.label)
   }
 
-  return list.map((m) => ({ ...m, primaryDomain: domainByMember.get(m.id) ?? null }))
+  const withDomains = list.map((m) => ({ ...m, primaryDomain: domainByMember.get(m.id) ?? null }))
+  if (options?.seed) return seededShuffle(withDomains, options.seed).slice(0, limit)
+  return withDomains
 }
 
 export async function getMemberBySlug(slug: string) {
@@ -167,20 +172,20 @@ export async function getMemberContacts(memberId: string) {
     .orderBy(desc(memberContacts.isPrimary), asc(memberContacts.name))
 }
 
-export async function getOtherActiveMembers(excludeSlug: string, limit = 3) {
+export async function getOtherActiveMembers(excludeSlug: string, limit = 3, options?: { seed?: string }) {
   const db = getDb()
-  const list = await db
-    .select({
-      id: members.id,
-      slug: members.slug,
-      name: members.name,
-      logoUrl: members.logoUrl,
-      description: members.description,
-    })
-    .from(members)
-    .where(and(eq(members.status, 'active'), ne(members.slug, excludeSlug)))
-    .orderBy(asc(members.name))
-    .limit(limit)
+  const list = options?.seed
+    ? await db
+        .select({ id: members.id, slug: members.slug, name: members.name, logoUrl: members.logoUrl, description: members.description })
+        .from(members)
+        .where(and(eq(members.status, 'active'), ne(members.slug, excludeSlug)))
+        .orderBy(asc(members.name))
+    : await db
+        .select({ id: members.id, slug: members.slug, name: members.name, logoUrl: members.logoUrl, description: members.description })
+        .from(members)
+        .where(and(eq(members.status, 'active'), ne(members.slug, excludeSlug)))
+        .orderBy(asc(members.name))
+        .limit(limit)
 
   if (list.length === 0) return []
 
@@ -196,5 +201,7 @@ export async function getOtherActiveMembers(excludeSlug: string, limit = 3) {
     if (!domainByMember.has(a.memberId)) domainByMember.set(a.memberId, a.label)
   }
 
-  return list.map((m) => ({ ...m, primaryDomain: domainByMember.get(m.id) ?? null }))
+  const withDomains = list.map((m) => ({ ...m, primaryDomain: domainByMember.get(m.id) ?? null }))
+  if (options?.seed) return seededShuffle(withDomains, options.seed).slice(0, limit)
+  return withDomains
 }

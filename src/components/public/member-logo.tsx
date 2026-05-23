@@ -33,12 +33,17 @@ interface MemberLogoProps {
   logoUrl?: string | null
   sizes?: string
   priority?: boolean
+  /** Controls the standalone height. Ignored when a parent context class overrides it. */
+  size?: 'sm' | 'md' | 'lg'
 }
 
-export function MemberLogo({ name, logoUrl, sizes, priority = false }: MemberLogoProps) {
+export function MemberLogo({ name, logoUrl, sizes, priority = false, size }: MemberLogoProps) {
+  const sizeClass = size ? `member-logo--${size}` : ''
+  const wrapClass = ['member-logo-wrap', sizeClass].filter(Boolean).join(' ')
+
   if (logoUrl) {
     return (
-      <div className="member-logo-wrap">
+      <div className={wrapClass}>
         <Image
           src={logoUrl}
           alt={`Logo ${name}`}
@@ -54,7 +59,7 @@ export function MemberLogo({ name, logoUrl, sizes, priority = false }: MemberLog
   const { bg, fg } = colorFor(name)
   return (
     <div
-      className="member-logo-wrap member-logo-fallback"
+      className={`${wrapClass} member-logo-fallback`}
       style={{ background: bg }}
       role="img"
       aria-label={`${name} — logo non disponible`}

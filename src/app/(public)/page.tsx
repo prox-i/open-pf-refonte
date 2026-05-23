@@ -6,6 +6,7 @@ import { ArrowIcon } from '@/components/public/arrow-icon'
 import { MemberShowcase } from '@/components/annuaire/member-showcase'
 import { getFeaturedMembers } from '@/lib/db/queries/members'
 import { getSiteStats } from '@/lib/db/queries/stats'
+import { getDailySeed } from '@/lib/random/seeded-shuffle'
 
 export const revalidate = 3600
 
@@ -105,7 +106,7 @@ const NEWS_PREVIEW = [
 
 export default async function HomePage() {
   const [featuredMembers, { memberCount, employeeCount, domainCount }] = await Promise.all([
-    getFeaturedMembers(12),
+    getFeaturedMembers(12, { seed: getDailySeed() }),
     getSiteStats(),
   ])
 

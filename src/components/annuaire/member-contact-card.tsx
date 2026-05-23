@@ -139,9 +139,9 @@ export function MemberContactCard({
         )}
       </div>
 
-      {/* LinkedIn */}
-      {linkedinUrl && (
-        <div className="profile-social-zone">
+      {/* Actions : LinkedIn + CTA regroupés pour éviter le vide visuel */}
+      <div className="profile-actions">
+        {linkedinUrl && (
           <a
             className="contact-social-btn"
             href={linkedinUrl}
@@ -157,17 +157,13 @@ export function MemberContactCard({
             </svg>
             LinkedIn
           </a>
-        </div>
-      )}
-
-      {/* CTA */}
-      <div className="profile-cta">
+        )}
         {websiteUrl ? (
-          <a className="btn" href={websiteUrl} target="_blank" rel="noopener noreferrer">
+          <a className="btn profile-cta-btn" href={websiteUrl} target="_blank" rel="noopener noreferrer">
             Visiter le site <ArrowIcon />
           </a>
         ) : (
-          <Link className="btn btn-secondary" href="/contact">
+          <Link className="btn btn-secondary profile-cta-btn" href="/contact">
             Nous contacter <ArrowIcon />
           </Link>
         )}

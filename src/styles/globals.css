@@ -765,6 +765,9 @@ p {
   letter-spacing: -0.04em;
   line-height: 1;
 }
+/* Explicit size variants — overridden by context classes (.profile-logo-zone, etc.) */
+.member-logo--sm { height: 80px; }
+.member-logo--lg { height: 200px; }
 
 /* ─── Homepage members showcase ──────────────────────────────────────────── */
 .members-showcase {
@@ -2252,15 +2255,17 @@ textarea {
   box-shadow: var(--shadow-soft);
   display: flex;
   flex-direction: column;
+  /* Override the gap from .contact-card so section borders control spacing instead */
+  gap: 0;
 }
 .profile-logo-zone {
-  padding: 36px 36px 28px;
+  padding: 28px 28px 24px;
   background: white;
   border-bottom: 1px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 200px;
+  min-height: 160px;
 }
 .profile-logo-zone .member-logo-wrap {
   width: 100%;
@@ -2317,15 +2322,18 @@ textarea {
 .profile-contact-value a:hover {
   color: var(--open-magenta);
 }
-.profile-social-zone {
+.profile-actions {
   display: flex;
+  flex-direction: column;
   gap: 10px;
-  flex-wrap: wrap;
-  padding: 16px 24px;
-  border-top: 1px solid var(--line);
-}
-.profile-cta {
   padding: 16px 24px 20px;
+  border-top: 1px solid var(--line);
+  margin-top: auto;
+}
+.profile-cta-btn {
+  width: 100%;
+  text-align: center;
+  justify-content: center;
 }
 .member-profile-main {
   display: flex;

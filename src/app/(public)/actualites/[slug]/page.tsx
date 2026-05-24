@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowIcon } from '@/components/public/arrow-icon'
@@ -91,12 +90,11 @@ export default async function ArticlePage({ params }: Props) {
         <div className="container article-layout">
           {article.imageUrl && (
             <div className="article-cover">
-              <Image
+              <img
                 src={article.imageUrl}
                 alt={article.title}
-                fill
-                style={{ objectFit: 'cover' }}
-                priority
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                referrerPolicy="no-referrer"
               />
             </div>
           )}

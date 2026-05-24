@@ -88,6 +88,7 @@ export default async function ActualitesPage() {
                     src={featured.imageUrl}
                     alt=""
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    referrerPolicy="no-referrer"
                   />
                 </div>
               ) : (
@@ -119,7 +120,7 @@ export default async function ActualitesPage() {
                 <Link key={article.slug} href={`/actualites/${article.slug}`} className="card news-card news-card--link">
                   {article.imageUrl ? (
                     <div className="news-image news-image--photo">
-                      <img src={article.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+                      <img src={article.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" referrerPolicy="no-referrer" />
                     </div>
                   ) : (
                     <div className="news-image lagoon" />

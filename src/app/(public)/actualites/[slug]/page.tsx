@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CtaBand } from '@/components/public/cta-band'
@@ -89,11 +90,13 @@ export default async function ArticlePage({ params }: Props) {
         <div className="container article-layout">
           {article.imageUrl && (
             <div className="article-cover">
-              <img
+              <Image
                 src={article.imageUrl}
                 alt={article.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                referrerPolicy="no-referrer"
+                fill
+                sizes="(max-width: 860px) 100vw, 820px"
+                style={{ objectFit: 'cover' }}
+                priority
               />
             </div>
           )}

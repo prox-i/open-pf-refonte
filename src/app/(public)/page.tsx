@@ -231,13 +231,13 @@ export default async function HomePage() {
                   className="card news-card news-card--link"
                 >
                   {article.imageUrl ? (
-                    <div className="news-image news-image--photo" style={{ position: 'relative' }}>
-                      <img
+                    <div className="news-image news-image--photo">
+                      <Image
                         src={article.imageUrl}
                         alt=""
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        loading="lazy"
-                        referrerPolicy="no-referrer"
+                        fill
+                        sizes="(max-width: 580px) 100vw, (max-width: 980px) 50vw, 33vw"
+                        style={{ objectFit: 'cover' }}
                       />
                     </div>
                   ) : (

@@ -47,3 +47,4 @@ _frontkit_v2/
 
 # import pipeline data (generated, never commit)
 /data/
+/tmp/

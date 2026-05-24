@@ -1309,12 +1309,12 @@ p {
 }
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 .form-grid-3 {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
 }
 .form-field {
@@ -1450,7 +1450,39 @@ textarea {
 .stepper {
   margin-bottom: 40px;
 }
-.stepper ol {
+/* Compact progress (mobile only — hidden ≥641px) */
+.stepper-compact {
+  display: none;
+}
+.stepper-compact-status {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--open-magenta);
+  margin: 0;
+}
+.stepper-compact-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 4px 0 12px;
+  line-height: 1.2;
+}
+.stepper-compact-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--line);
+  overflow: hidden;
+}
+.stepper-compact-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--open-magenta);
+  transition: width 0.3s ease;
+}
+.stepper-rail {
   display: flex;
   gap: 0;
   list-style: none;
@@ -1673,9 +1705,13 @@ textarea {
 /* Domain chips */
 .domain-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* min() guards against overflow when a chip's label is wider than the track. */
+  grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
   gap: 10px;
   margin-top: 8px;
+}
+.domain-chip span {
+  min-width: 0;
 }
 .domain-chip {
   display: flex;
@@ -1909,17 +1945,40 @@ textarea {
 }
 
 @media (max-width: 640px) {
-  .stepper ol {
-    flex-direction: column;
-  }
-  .stepper-step::after {
+  /* Swap the horizontal rail for the compact progress block */
+  .stepper-rail {
     display: none;
   }
-  .domain-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .stepper-compact {
+    display: block;
+  }
+  .stepper {
+    margin-bottom: 28px;
+  }
+  /* Single-column fields on phones */
+  .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  /* Stacked, full-width actions — primary on top */
+  .form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .form-actions .btn {
+    width: 100%;
+  }
+  /* Recap rows stack label over value */
+  .recap-row {
+    grid-template-columns: 1fr;
+    gap: 2px;
   }
   .adhesion-shell {
     padding: 24px 16px;
+  }
+  .contact-entry {
+    padding: 18px 14px;
   }
   .adhesion-dialog-inner {
     padding: 24px 16px;
@@ -2633,7 +2692,9 @@ textarea {
 /* ─── Adhesion page 2-col layout (form + sidebar) ────────────── */
 .adhesion-page-grid {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  /* minmax(0, …) lets the form column shrink below its min-content,
+     preventing nowrap/grid children from forcing horizontal overflow. */
+  grid-template-columns: minmax(0, 1fr) 320px;
   gap: 24px;
   align-items: start;
 }
@@ -2719,11 +2780,16 @@ textarea {
 
 @media (max-width: 980px) {
   .adhesion-page-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .adhesion-progress-sidebar {
     position: static;
-    order: -1;
+  }
+  /* The in-form stepper already shows progression on narrow screens,
+     so the sidebar step list is redundant — keep only the help card,
+     rendered below the form. */
+  .adhesion-progress-card {
+    display: none;
   }
 }
 

@@ -9,9 +9,32 @@ interface StepperProps {
 }
 
 export function Stepper({ steps, currentStep }: StepperProps) {
+  const total = steps.length
+  const current = steps[currentStep - 1]
+  const progress = Math.round((currentStep / total) * 100)
+
   return (
     <nav className="stepper" aria-label="Étapes du formulaire">
-      <ol>
+      {/* Compact progress — shown on mobile only */}
+      <div className="stepper-compact" aria-live="polite">
+        <p className="stepper-compact-status">
+          Étape {currentStep} sur {total}
+        </p>
+        <p className="stepper-compact-title">{current?.label}</p>
+        <div
+          className="stepper-compact-bar"
+          role="progressbar"
+          aria-valuemin={1}
+          aria-valuemax={total}
+          aria-valuenow={currentStep}
+          aria-label={`Progression : étape ${currentStep} sur ${total}`}
+        >
+          <span style={{ width: `${progress}%` }} />
+        </div>
+      </div>
+
+      {/* Full rail — shown on tablet/desktop */}
+      <ol className="stepper-rail">
         {steps.map((step, index) => {
           const stepNumber = index + 1
           const isDone = stepNumber < currentStep

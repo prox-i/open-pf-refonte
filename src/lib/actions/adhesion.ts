@@ -37,61 +37,75 @@ export async function submitAdhesion(raw: unknown): Promise<SubmitResult> {
   }
 
   const data = parsed.data
-  const db = getDb()
-  const baseSlug = toSlug(data.name)
-  const slug = await generateUniqueSlug(db, baseSlug)
 
-  // neon-http driver does not support transactions — sequential inserts
-  const [member] = await db
-    .insert(members)
-    .values({
-      slug,
-      name: data.name,
-      legalStatusId: null,
-      tahitiNumber: data.tahitiNumber ?? null,
-      websiteUrl: data.websiteUrl ?? null,
-      description: data.description ?? null,
-      yearFounded: data.yearFounded ?? null,
-      employeeCount: data.employeeCount ?? null,
-      isMedefMember: data.isMedefMember,
-      status: 'submitted',
-      submittedAt: new Date(),
-    })
-    .returning({ id: members.id })
+  try {
+    const db = getDb()
+    const baseSlug = toSlug(data.name)
+    const slug = await generateUniqueSlug(db, baseSlug)
 
-  if (!member) throw new Error('Member insert failed')
+    // neon-http driver does not support transactions — sequential inserts
+    const [member] = await db
+      .insert(members)
+      .values({
+        slug,
+        name: data.name,
+        legalStatusId: null,
+        tahitiNumber: data.tahitiNumber ?? null,
+        websiteUrl: data.websiteUrl ?? null,
+        description: data.description ?? null,
+        yearFounded: data.yearFounded ?? null,
+        employeeCount: data.employeeCount ?? null,
+        isMedefMember: data.isMedefMember,
+        status: 'submitted',
+        submittedAt: new Date(),
+      })
+      .returning({ id: members.id })
 
-  if (data.contacts.length > 0) {
-    await db.insert(memberContacts).values(
-      data.contacts.map((c) => ({
-        memberId: member.id,
-        name: c.name,
-        role: c.role ?? null,
-        email: c.email,
-        phone: c.phone ?? null,
-        isPrimary: c.isPrimary,
-      })),
-    )
+    if (!member) throw new Error('Member insert returned no row')
+
+    if (data.contacts.length > 0) {
+      await db.insert(memberContacts).values(
+        data.contacts.map((c) => ({
+          memberId: member.id,
+          name: c.name,
+          role: c.role ?? null,
+          email: c.email,
+          phone: c.phone ?? null,
+          isPrimary: c.isPrimary,
+        })),
+      )
+    }
+
+    if (data.activityDomains.length > 0) {
+      await db.insert(memberActivities).values(
+        data.activityDomains.map((domainId) => ({
+          memberId: member.id,
+          domainId,
+        })),
+      )
+    }
+
+    if (data.certifications.length > 0) {
+      await db.insert(memberCertifications).values(
+        data.certifications.map((certificationId) => ({
+          memberId: member.id,
+          certificationId,
+          otherLabel: null,
+        })),
+      )
+    }
+
+    return { success: true, slug }
+  } catch (err) {
+    // Serverless cold-starts on Vercel can hit transient Neon connection errors that
+    // never occur against a warm local DB. Surface a typed, user-friendly result
+    // instead of letting the Server Action throw (which the browser sees as a 500).
+    console.error('submitAdhesion failed:', err)
+    return {
+      success: false,
+      errors: {
+        _form: ['Une erreur technique est survenue lors de l’envoi. Veuillez réessayer dans quelques instants.'],
+      },
+    }
   }
-
-  if (data.activityDomains.length > 0) {
-    await db.insert(memberActivities).values(
-      data.activityDomains.map((domainId) => ({
-        memberId: member.id,
-        domainId,
-      })),
-    )
-  }
-
-  if (data.certifications.length > 0) {
-    await db.insert(memberCertifications).values(
-      data.certifications.map((certificationId) => ({
-        memberId: member.id,
-        certificationId,
-        otherLabel: null,
-      })),
-    )
-  }
-
-  return { success: true, slug }
 }

@@ -1021,6 +1021,47 @@ p {
   border-top: 1px solid var(--line);
 }
 
+/* ─── Pagination ──────────────────────────────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 56px;
+  flex-wrap: wrap;
+}
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  height: 42px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+  background: transparent;
+  border: 1.5px solid var(--line);
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.pagination-btn:hover {
+  background: var(--bg-soft);
+  border-color: var(--open-magenta);
+  color: var(--open-magenta);
+}
+.pagination-btn[aria-current="page"] {
+  background: var(--open-magenta);
+  border-color: var(--open-magenta);
+  color: #fff;
+}
+.pagination-btn[aria-disabled="true"] {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
 /* ─── CTA band ────────────────────────────────────────────────────────────── */
 .cta-band {
   background: linear-gradient(115deg, var(--open-magenta), #be0068);

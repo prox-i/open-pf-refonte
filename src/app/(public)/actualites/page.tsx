@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { getDb } from '@/lib/db'
-import { news, newsCategories } from '@/lib/db/schema'
-import { eq, desc } from 'drizzle-orm'
 import { CtaBand } from '@/components/public/cta-band'
 import { ArrowIcon } from '@/components/public/arrow-icon'
 import { formatDate } from '@/lib/utils'
 import { buildBreadcrumbJsonLd } from '@/lib/seo'
+import { getNewsPaginated } from '@/lib/db/queries/news'
 
 export const dynamic = 'force-dynamic'
+
+const PAGE_SIZE = 9
 
 export const metadata: Metadata = {
   title: 'Actualités',
@@ -25,28 +25,28 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', images: ['/logo-open.png'] },
 }
 
-export default async function ActualitesPage() {
+interface Props {
+  searchParams: Promise<{ page?: string }>
+}
+
+export default async function ActualitesPage({ searchParams }: Props) {
+  const { page: pageParam } = await searchParams
+  const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1)
+
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
     { name: 'Accueil', href: '/' },
     { name: 'Actualités', href: '/actualites' },
   ])
-  const db = getDb()
-  const articles = await db
-    .select({
-      id: news.id,
-      slug: news.slug,
-      title: news.title,
-      excerpt: news.excerpt,
-      publishedAt: news.publishedAt,
-      imageUrl: news.imageUrl,
-      categoryLabel: newsCategories.label,
-    })
-    .from(news)
-    .leftJoin(newsCategories, eq(news.categoryId, newsCategories.id))
-    .where(eq(news.status, 'published'))
-    .orderBy(desc(news.publishedAt))
 
-  const [featured, ...rest] = articles
+  const { articles, total } = await getNewsPaginated(page, PAGE_SIZE)
+  const totalPages = Math.ceil(total / PAGE_SIZE)
+
+  const featured = page === 1 ? (articles[0] ?? null) : null
+  const grid = page === 1 ? articles.slice(1) : articles
+
+  function pageHref(n: number) {
+    return n === 1 ? '/actualites' : `/actualites?page=${n}`
+  }
 
   return (
     <>
@@ -89,6 +89,7 @@ export default async function ActualitesPage() {
                     alt=""
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     referrerPolicy="no-referrer"
+                    fetchPriority="high"
                   />
                 </div>
               ) : (
@@ -114,13 +115,24 @@ export default async function ActualitesPage() {
             </Link>
           )}
 
-          {rest.length > 0 && (
+          {grid.length > 0 && (
             <div className="grid-3">
-              {rest.map((article) => (
-                <Link key={article.slug} href={`/actualites/${article.slug}`} className="card news-card news-card--link">
+              {grid.map((article) => (
+                <Link
+                  key={article.slug}
+                  href={`/actualites/${article.slug}`}
+                  className="card news-card news-card--link"
+                >
                   {article.imageUrl ? (
                     <div className="news-image news-image--photo">
-                      <img src={article.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" referrerPolicy="no-referrer" />
+                      <img
+                        src={article.imageUrl}
+                        alt=""
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        loading="lazy"
+                        decoding="async"
+                        referrerPolicy="no-referrer"
+                      />
                     </div>
                   ) : (
                     <div className="news-image lagoon" />
@@ -153,6 +165,41 @@ export default async function ActualitesPage() {
               <p className="empty-state__title">Aucune actualité</p>
               <p className="empty-state__text">Les actualités de la filière seront publiées ici.</p>
             </div>
+          )}
+
+          {totalPages > 1 && (
+            <nav className="pagination" aria-label="Pagination">
+              <Link
+                href={pageHref(page - 1)}
+                className="pagination-btn"
+                aria-label="Page précédente"
+                aria-disabled={page <= 1}
+                tabIndex={page <= 1 ? -1 : undefined}
+              >
+                ← Précédent
+              </Link>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                <Link
+                  key={n}
+                  href={pageHref(n)}
+                  className="pagination-btn"
+                  aria-current={n === page ? 'page' : undefined}
+                >
+                  {n}
+                </Link>
+              ))}
+
+              <Link
+                href={pageHref(page + 1)}
+                className="pagination-btn"
+                aria-label="Page suivante"
+                aria-disabled={page >= totalPages}
+                tabIndex={page >= totalPages ? -1 : undefined}
+              >
+                Suivant →
+              </Link>
+            </nav>
           )}
         </div>
       </section>

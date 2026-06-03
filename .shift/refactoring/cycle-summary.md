@@ -4,5 +4,5 @@
 - **Score Agent A courant** : 7.5/10
 - **Objectif** : 9/10
 - **Décision SHIFT** : —
-- **Statut cycle** : scored
+- **Statut cycle** : running
 - **Prochaine action** : 

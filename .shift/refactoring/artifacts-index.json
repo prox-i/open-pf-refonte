@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "generatedAt": "2026-06-03T22:13:44.738Z",
+  "generatedAt": "2026-06-03T22:15:41.851Z",
   "sessionId": "cmpylq0pu0008gm743yfj6jhl",
-  "cycleRunId": null,
+  "cycleRunId": "github_cycle_20260603221538_issue1",
   "repository": "prox-i/open-pf-refonte",
   "baseBranch": "main",
   "artifacts": [
@@ -10,7 +10,7 @@
       "key": "README",
       "path": ".shift/refactoring/README.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "b73b0263abefff998b1a6ad598ad6ec4b4a8e88659e3f7fb247e94707f97783f"
     },
@@ -18,7 +18,7 @@
       "key": "project-context",
       "path": ".shift/refactoring/project-context.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "b0ad11cd99081f7edea38f868580f7ebf8880d0e85eceed31d400029167c74bc"
     },
@@ -26,7 +26,7 @@
       "key": "repository-analysis",
       "path": ".shift/refactoring/repository-analysis.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "f080ee384cfc4b06b85c9d0b311a3d62733a009a0df022489cd24c9d3f883b96"
     },
@@ -34,7 +34,7 @@
       "key": "requirements",
       "path": ".shift/refactoring/requirements.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "f6b659820bb64a8b7a9f0a13846201078b06bfb50c7c1d6dcf5c8556c6bcccc3"
     },
@@ -42,7 +42,7 @@
       "key": "scoring-criteria",
       "path": ".shift/refactoring/scoring-criteria.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "29c0f7fea35f48cc533cf9926d0768fd9e82ba990ebfb1329504b3e5ad6d6d85"
     },
@@ -50,7 +50,7 @@
       "key": "strategy",
       "path": ".shift/refactoring/strategy.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "793f645ed114fbdae3c8547d28247fc6eb9b7e44e9ae164eed2430f9ba5571d0"
     },
@@ -58,15 +58,15 @@
       "key": "cycle-summary",
       "path": ".shift/refactoring/cycle-summary.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
-      "sha256": "3d828b4a42077fc6dc77e1a7c42ee9ec5ad7755a7f6f8beebe1c9fd487a901d2"
+      "sha256": "4f18e8a399bba79885184987eb735e5104ca2190a7fa1d04b8e5519f16fe9d50"
     },
     {
       "key": "decisions",
       "path": ".shift/refactoring/decisions.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "4f6b2dc556be5d6952548ca1214fdb422f71cbc4c4b1cc4f668ed27db11976f9"
     },
@@ -74,7 +74,7 @@
       "key": "agent-a-verdict",
       "path": ".shift/refactoring/agent-a-verdict.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "08c1cbf219fa68b9ec2eacc0fc8f71ca51d8df17458476918d0a7ebcee20eab7"
     },
@@ -82,7 +82,7 @@
       "key": "claude-scorecard",
       "path": ".shift/refactoring/claude-scorecard.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "13e8ed9d826c9a673b18497603f8e31f7acd7755b0e5d106ece610c6343c8ee9"
     },
@@ -90,15 +90,15 @@
       "key": "prompts-used",
       "path": ".shift/refactoring/prompts-used.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
-      "sha256": "1eb75126de683a8561e7a7c4749e0e41437c34b8381e88bf190b77f3e3fb88c7"
+      "sha256": "e70ea0157681cc3eff75daee1f7fbb1ff405914f380debc35d0f95e0350a1a3a"
     },
     {
       "key": "CDC_FONCTIONNEL",
       "path": ".shift/refactoring/CDC_FONCTIONNEL.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "76453b6c398ec7ce6f0c0da57f0873c6212f21675402004535ccbefe8b969750"
     },
@@ -106,7 +106,7 @@
       "key": "CDC_TECHNIQUE",
       "path": ".shift/refactoring/CDC_TECHNIQUE.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "264319bdd4cf56933750a822618a62210d67f22a592eac3223fbf51d7b8cb500"
     },
@@ -114,7 +114,7 @@
       "key": "CARTOGRAPHIE_CODE",
       "path": ".shift/refactoring/CARTOGRAPHIE_CODE.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "8d65395ad50e58f118882bee677912a54597a4ccaac072b12a6917b1f9df3923"
     },
@@ -122,7 +122,7 @@
       "key": "CAHIER_RECETTE",
       "path": ".shift/refactoring/CAHIER_RECETTE.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "30b16f9859b387ed3f3bf118d0d1b9eab1934c0000e0310cf3d73528c58a464b"
     },
@@ -130,7 +130,7 @@
       "key": "workflows/WORKFLOW_AUTHENTIFICATION",
       "path": ".shift/refactoring/workflows/WORKFLOW_AUTHENTIFICATION.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "9f6fb136257d72cadc4c5472860ebd3d7f2307af3972d8aa808d788914b05530"
     },
@@ -138,7 +138,7 @@
       "key": "workflows/WORKFLOW_ADHESION",
       "path": ".shift/refactoring/workflows/WORKFLOW_ADHESION.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "090b044f16b99123a77ec31d87b2d0756836a15bcad4e9e9892236b6e13eff9b"
     },
@@ -146,7 +146,7 @@
       "key": "workflows/WORKFLOW_FICHE_ADHERENT",
       "path": ".shift/refactoring/workflows/WORKFLOW_FICHE_ADHERENT.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "644ec0fc2a39fbc38de909533b685557cbb41d2ea8c10919f22c5c8f6e059c4f"
     },
@@ -154,7 +154,7 @@
       "key": "workflows/WORKFLOW_ANNUAIRE",
       "path": ".shift/refactoring/workflows/WORKFLOW_ANNUAIRE.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "bf2449b0c3c9628632e398c13ef204037512eda06921391b9f5d350856e09d37"
     },
@@ -162,7 +162,7 @@
       "key": "workflows/WORKFLOW_ADMIN_MODERATION",
       "path": ".shift/refactoring/workflows/WORKFLOW_ADMIN_MODERATION.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "57cdcc9d121f9842a7927aa2631ec6ba3871b3a1b39cebf0fa1c94a94ecdc49c"
     },
@@ -170,7 +170,7 @@
       "key": "workflows/WORKFLOW_CONTENT_ACTUALITES",
       "path": ".shift/refactoring/workflows/WORKFLOW_CONTENT_ACTUALITES.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "5e2c09f9c9e6d909268ca625ac95cf5222906d3e69a4d880f09bd790e6a6d7f3"
     },
@@ -178,7 +178,7 @@
       "key": "workflows/WORKFLOW_OFFRES_EMPLOI",
       "path": ".shift/refactoring/workflows/WORKFLOW_OFFRES_EMPLOI.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "78d4ea9f0fd4ce3f072ac63ea65c93bc75c7f0a76a7cfe322dc22036125dbb40"
     },
@@ -186,7 +186,7 @@
       "key": "workflows/WORKFLOW_RELANCES_EMAIL",
       "path": ".shift/refactoring/workflows/WORKFLOW_RELANCES_EMAIL.md",
       "version": 1,
-      "updatedAt": "2026-06-03T22:13:44.738Z",
+      "updatedAt": "2026-06-03T22:15:41.851Z",
       "source": "shift",
       "sha256": "50802f720c6d05c4f93651cb162d2397ff21841634f54f68b361934774de5752"
     }

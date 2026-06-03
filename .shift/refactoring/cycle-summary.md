@@ -4,5 +4,5 @@
 - **Score Agent A courant** : —/10
 - **Objectif** : 9/10
 - **Décision SHIFT** : —
-- **Statut cycle** : draft
+- **Statut cycle** : repository_analyzed
 - **Prochaine action** : 

@@ -1,0 +1,305 @@
+# SHIFT Refactoring — baseline sandbox validé + branche de base dynamique (patch 87)
+# Ne pas réintroduire d'étape « Resolve SHIFT trigger » / skip silencieux : le filtre job-level if suffit.
+name: Claude Code Refactoring
+
+run-name: "SHIFT Refactoring — issue #${{ github.event.issue.number || inputs.shift_issue_number }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      shift_session_id:
+        description: SHIFT session id
+        required: true
+        type: string
+      shift_cycle_run_id:
+        description: SHIFT cycle run id
+        required: true
+        type: string
+      shift_project_id:
+        required: false
+        type: string
+      shift_issue_number:
+        description: GitHub issue number
+        required: true
+        type: string
+      shift_mission_mode:
+        required: true
+        type: string
+  issues:
+    types: [opened, edited]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+
+concurrency:
+  group: shift-claude-refactor-${{ github.repository }}-${{ github.event.issue.number || inputs.shift_issue_number }}
+  cancel-in-progress: false
+
+jobs:
+  claude-refactor:
+    name: Claude Code Refactoring
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.issue && contains(github.event.issue.body, '@claude')) ||
+      (github.event.comment && contains(github.event.comment.body, '@claude'))
+
+    env:
+      ISSUE_NUMBER: ${{ github.event.issue.number || inputs.shift_issue_number }}
+      BASE_BRANCH: ${{ github.event.repository.default_branch || 'main' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ github.token }}
+
+      - name: Extract SHIFT context
+        id: shift_context
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DISPATCH_SESSION: ${{ inputs.shift_session_id }}
+          DISPATCH_CYCLE: ${{ inputs.shift_cycle_run_id }}
+          DISPATCH_PROJECT: ${{ inputs.shift_project_id }}
+          DISPATCH_MODE: ${{ inputs.shift_mission_mode }}
+        run: |
+          set -euo pipefail
+
+          if [ -n "${DISPATCH_SESSION:-}" ]; then
+            SHIFT_SESSION_ID="${DISPATCH_SESSION}"
+            SHIFT_CYCLE_RUN_ID="${DISPATCH_CYCLE}"
+            SHIFT_PROJECT_ID="${DISPATCH_PROJECT:-}"
+            SHIFT_MISSION_MODE="${DISPATCH_MODE}"
+            SHIFT_BASE_BRANCH=""
+            SHIFT_BASE_SHA=""
+          else
+            BODY="$(gh issue view "${ISSUE_NUMBER}" --json body --jq .body 2>/dev/null || true)"
+            if [ -z "${BODY}" ] && [ -n "${{ github.event.comment.body }}" ]; then
+              BODY="${{ github.event.comment.body }}"
+            fi
+            printf '%s\n' "${BODY}" > /tmp/shift_body.txt
+            SHIFT_SESSION_ID=$(grep -E '^SHIFT_SESSION_ID:' /tmp/shift_body.txt | head -1 | sed 's/^SHIFT_SESSION_ID:[[:space:]]*//' || true)
+            SHIFT_CYCLE_RUN_ID=$(grep -E '^SHIFT_CYCLE_RUN_ID:' /tmp/shift_body.txt | head -1 | sed 's/^SHIFT_CYCLE_RUN_ID:[[:space:]]*//' || true)
+            SHIFT_PROJECT_ID=$(grep -E '^SHIFT_PROJECT_ID:' /tmp/shift_body.txt | head -1 | sed 's/^SHIFT_PROJECT_ID:[[:space:]]*//' || true)
+            SHIFT_MISSION_MODE=$(grep -E '^SHIFT_MISSION_MODE:' /tmp/shift_body.txt | head -1 | sed 's/^SHIFT_MISSION_MODE:[[:space:]]*//' || true)
+            SHIFT_BASE_BRANCH=$(grep -E '^SHIFT_BASE_BRANCH:' /tmp/shift_body.txt | head -1 | sed 's/^SHIFT_BASE_BRANCH:[[:space:]]*//' || true)
+            SHIFT_BASE_SHA=$(grep -E '^SHIFT_BASE_SHA:' /tmp/shift_body.txt | head -1 | sed 's/^SHIFT_BASE_SHA:[[:space:]]*//' || true)
+          fi
+
+          echo "shift_session_id=${SHIFT_SESSION_ID}" >> "$GITHUB_OUTPUT"
+          echo "shift_cycle_run_id=${SHIFT_CYCLE_RUN_ID}" >> "$GITHUB_OUTPUT"
+          echo "shift_project_id=${SHIFT_PROJECT_ID}" >> "$GITHUB_OUTPUT"
+          echo "shift_mission_mode=${SHIFT_MISSION_MODE}" >> "$GITHUB_OUTPUT"
+          echo "shift_base_branch=${SHIFT_BASE_BRANCH}" >> "$GITHUB_OUTPUT"
+          echo "shift_base_sha=${SHIFT_BASE_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve base ref
+        shell: bash
+        env:
+          SHIFT_BASE_BRANCH: ${{ steps.shift_context.outputs.shift_base_branch }}
+          SHIFT_BASE_SHA: ${{ steps.shift_context.outputs.shift_base_sha }}
+        run: |
+          set -euo pipefail
+          RESOLVED_BASE_BRANCH="${SHIFT_BASE_BRANCH:-}"
+          if [ -z "${RESOLVED_BASE_BRANCH}" ]; then
+            RESOLVED_BASE_BRANCH="${BASE_BRANCH:-main}"
+          fi
+          echo "BASE_BRANCH=${RESOLVED_BASE_BRANCH}" >> "$GITHUB_ENV"
+          echo "BASE_SHA=${SHIFT_BASE_SHA:-}" >> "$GITHUB_ENV"
+          echo "Resolved BASE_BRANCH=${RESOLVED_BASE_BRANCH}"
+          echo "Resolved BASE_SHA=${SHIFT_BASE_SHA:-<none>}"
+
+      - name: Export SHIFT / LiteLLM env
+        if: steps.shift_context.outputs.shift_session_id != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          SESSION_ID="${{ steps.shift_context.outputs.shift_session_id }}"
+          CYCLE_ID="${{ steps.shift_context.outputs.shift_cycle_run_id }}"
+          if [ -z "${CYCLE_ID}" ]; then
+            CYCLE_ID="github_cycle_${SESSION_ID:0:12}"
+          fi
+          LITELLM_USER="shift-refactoring-session:${SESSION_ID}"
+          LITELLM_TAGS="shift,refactoring,shift_session:${SESSION_ID},shift:refactoring_session:${SESSION_ID},shift_cycle:${CYCLE_ID},source:github_action,step:claude_code_execution,shift:step:claude_code_execution,source:github-actions-claude-code"
+
+          export SESSION_ID="${SESSION_ID}"
+          export CYCLE_ID="${CYCLE_ID}"
+          export LITELLM_USER="${LITELLM_USER}"
+          export ISSUE_NUMBER="${ISSUE_NUMBER}"
+          METADATA="$(python3 - <<'PY'
+          import json, os
+          issue = os.environ.get("ISSUE_NUMBER", "").strip()
+          print(json.dumps({
+              "shiftSessionId": os.environ["SESSION_ID"],
+              "shiftCycleRunId": os.environ["CYCLE_ID"],
+              "shiftStep": "claude_code_execution",
+              "source": "github_action",
+              "workflow": "claude-code-refactoring",
+              "litellmUser": os.environ["LITELLM_USER"],
+              "githubIssueNumber": int(issue) if issue.isdigit() else None,
+          }, separators=(",", ":")))
+          PY
+          )"
+
+          {
+            echo "SHIFT_SESSION_ID=${SESSION_ID}"
+            echo "SHIFT_CYCLE_RUN_ID=${CYCLE_ID}"
+            echo "SHIFT_SOURCE=github_action"
+            echo "SHIFT_STEP=claude_code_execution"
+            echo "LITELLM_USER=${LITELLM_USER}"
+            echo "LITELLM_METADATA_SHIFT_SESSION_ID=${SESSION_ID}"
+            echo "LITELLM_METADATA_SHIFT_CYCLE_RUN_ID=${CYCLE_ID}"
+            echo "LITELLM_METADATA_SOURCE=github_action"
+            echo "LITELLM_METADATA_SHIFT_STEP=claude_code_execution"
+            echo "LITELLM_TAGS=${LITELLM_TAGS}"
+            echo "ANTHROPIC_CUSTOM_HEADERS<<EOF"
+            echo "x-litellm-customer-id: ${LITELLM_USER}"
+            echo "x-litellm-end-user-id: ${LITELLM_USER}"
+            echo "x-litellm-tags: ${LITELLM_TAGS}"
+            echo "x-litellm-spend-logs-metadata: ${METADATA}"
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+
+          echo "LiteLLM attribution configurée pour ${LITELLM_USER}"
+
+      - name: SHIFT cost correlation context
+        if: steps.shift_context.outputs.shift_session_id != ''
+        shell: bash
+        run: |
+          echo "SHIFT_SESSION_ID=${SHIFT_SESSION_ID:-}"
+          echo "SHIFT_CYCLE_RUN_ID=${SHIFT_CYCLE_RUN_ID:-}"
+          echo "LITELLM_USER=${LITELLM_USER:-}"
+          echo "SHIFT_SOURCE=${SHIFT_SOURCE:-}"
+          echo "SHIFT_STEP=${SHIFT_STEP:-}"
+
+      - name: Detect pushed Claude branch
+        id: detect_branch
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune 2>/dev/null || true
+
+          PREFIX="claude/issue-${ISSUE_NUMBER}-"
+          CLAUDE_BRANCH=$(git branch -r \
+            | grep -E "origin/${PREFIX}" \
+            | sed 's|origin/||' \
+            | grep -v 'HEAD' \
+            | sort -r \
+            | head -n 1 \
+            | xargs || true)
+
+          if [ -z "${CLAUDE_BRANCH}" ]; then
+            echo "branch_found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "branch_found=true" >> "$GITHUB_OUTPUT"
+          echo "branch_name=${CLAUDE_BRANCH}" >> "$GITHUB_OUTPUT"
+
+      - name: Run Claude Code
+        if: steps.detect_branch.outputs.branch_found != 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.LITELLM_API_KEY }}
+          github_token: ${{ github.token }}
+          base_branch: ${{ env.BASE_BRANCH }}
+        env:
+          ANTHROPIC_BASE_URL: ${{ secrets.LITELLM_BASE_URL }}
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.LITELLM_API_KEY }}
+          ANTHROPIC_MODEL: shift-claude-code
+          GITHUB_TOKEN: ${{ github.token }}
+          SHIFT_SESSION_ID: ${{ env.SHIFT_SESSION_ID }}
+          SHIFT_CYCLE_RUN_ID: ${{ env.SHIFT_CYCLE_RUN_ID }}
+          SHIFT_SOURCE: ${{ env.SHIFT_SOURCE }}
+          SHIFT_STEP: ${{ env.SHIFT_STEP }}
+          LITELLM_USER: ${{ env.LITELLM_USER }}
+          LITELLM_METADATA_SHIFT_SESSION_ID: ${{ env.LITELLM_METADATA_SHIFT_SESSION_ID }}
+          LITELLM_METADATA_SHIFT_CYCLE_RUN_ID: ${{ env.LITELLM_METADATA_SHIFT_CYCLE_RUN_ID }}
+          LITELLM_METADATA_SOURCE: ${{ env.LITELLM_METADATA_SOURCE }}
+          LITELLM_METADATA_SHIFT_STEP: ${{ env.LITELLM_METADATA_SHIFT_STEP }}
+          LITELLM_TAGS: ${{ env.LITELLM_TAGS }}
+
+      - name: Re-detect Claude branch
+        id: branch_after_claude
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune 2>/dev/null || true
+          PREFIX="claude/issue-${ISSUE_NUMBER}-"
+          CLAUDE_BRANCH=$(git branch -r \
+            | grep -E "origin/${PREFIX}" \
+            | sed 's|origin/||' \
+            | grep -v 'HEAD' \
+            | sort -r \
+            | head -n 1 \
+            | xargs || true)
+          if [ -z "${CLAUDE_BRANCH}" ]; then
+            echo "branch_found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "branch_found=true" >> "$GITHUB_OUTPUT"
+          echo "branch_name=${CLAUDE_BRANCH}" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve branch for PR
+        id: branch
+        shell: bash
+        run: |
+          if [ "${{ steps.branch_after_claude.outputs.branch_found }}" = "true" ]; then
+            echo "branch_name=${{ steps.branch_after_claude.outputs.branch_name }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ steps.detect_branch.outputs.branch_found }}" = "true" ]; then
+            echo "branch_name=${{ steps.detect_branch.outputs.branch_name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch_name=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Pull Request if branch has changes
+        if: steps.branch.outputs.branch_name != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          BRANCH_NAME: ${{ steps.branch.outputs.branch_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git remote set-url origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git fetch origin "${BASE_BRANCH}" "${BRANCH_NAME}" --prune
+
+          CHANGED_FILES=$(git diff --name-only "origin/${BASE_BRANCH}...origin/${BRANCH_NAME}" | wc -l | tr -d ' ')
+          if [ "${CHANGED_FILES}" = "0" ]; then
+            echo "pr_created=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          EXISTING_PR=$(gh pr list --head "${BRANCH_NAME}" --base "${BASE_BRANCH}" --json number --jq '.[0].number' || true)
+          if [ -n "${EXISTING_PR}" ]; then
+            echo "pr_created=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          set +e
+          PR_CREATE_OUTPUT=$(gh pr create \
+            --head "${BRANCH_NAME}" \
+            --base "${BASE_BRANCH}" \
+            --title "SHIFT Refactoring: Claude Code improvements for issue #${ISSUE_NUMBER}" \
+            --body "Automated refactoring via SHIFT Refactoring workflow. Refs #${ISSUE_NUMBER}" 2>&1)
+          PR_CREATE_EXIT=$?
+          set -e
+          echo "${PR_CREATE_OUTPUT}"
+          if [ "${PR_CREATE_EXIT}" -ne 0 ]; then
+            echo "pr_created=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "pr_created=true" >> "$GITHUB_OUTPUT"

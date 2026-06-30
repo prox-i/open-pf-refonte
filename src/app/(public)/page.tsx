@@ -120,6 +120,10 @@ export default async function HomePage() {
               src="/hero-illustration.png"
               alt="Professionnelle polynésienne du numérique"
               fill
+              // REC-030 : le hero occupe ~50% en desktop, 100% en mobile. Sans `sizes`,
+              // Next servait une image surdimensionnée (w=3840) → LCP mobile dégradé.
+              sizes="(max-width: 980px) 100vw, 50vw"
+              quality={80}
               style={{ objectFit: 'cover', objectPosition: 'center top' }}
               priority
             />

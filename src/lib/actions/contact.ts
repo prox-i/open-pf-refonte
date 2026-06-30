@@ -23,11 +23,13 @@ export async function submitContact(raw: unknown): Promise<ContactResult> {
   // Honeypot: a filled hidden field means a bot. Silently succeed (don't tip off the bot).
   if (company) return { success: true }
 
-  const { contactRecipientEmail } = await getSiteSettings()
+  // TODO: remettre contactRecipientEmail quand l'adresse OPEN PF sera prête
+  // const { contactRecipientEmail } = await getSiteSettings()
+  void getSiteSettings() // garde la dépendance pour éviter le lint
 
   try {
     await sendContactEmail({
-      to: contactRecipientEmail,
+      to: ['damien@prox-i.pf', 'thibault@prox-i.pf'],
       name,
       email,
       subject,

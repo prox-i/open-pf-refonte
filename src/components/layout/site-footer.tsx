@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { SITE_SETTINGS_DEFAULTS } from '@/lib/settings'
+import { SITE_SETTINGS_DEFAULTS } from '@/lib/settings-defaults'
 
 interface SiteFooterProps {
   facebookUrl?: string

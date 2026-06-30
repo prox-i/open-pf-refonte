@@ -4,6 +4,50 @@ import { ReminderEmail } from './templates/reminder'
 import { ContactEmail } from './templates/contact'
 import { env } from '@/lib/env'
 
+async function sendViaMandrill(message: {
+  to: string | string[]
+  subject: string
+  html: string
+  text: string
+  replyTo?: string
+  replyToName?: string
+}): Promise<void> {
+  const recipients = Array.isArray(message.to) ? message.to : [message.to]
+  const res = await fetch('https://mandrillapp.com/api/1.0/messages/send.json', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      key: env.MANDRILL_API_KEY,
+      message: {
+        from_email: env.MANDRILL_SENDER_EMAIL,
+        from_name: env.MANDRILL_SENDER_NAME,
+        to: recipients.map((email) => ({ email, type: 'to' })),
+        ...(message.replyTo && {
+          headers: {
+            'Reply-To': message.replyToName
+              ? `${message.replyToName} <${message.replyTo}>`
+              : message.replyTo,
+          },
+        }),
+        subject: message.subject,
+        html: message.html,
+        text: message.text,
+      },
+    }),
+  })
+
+  if (!res.ok) {
+    const body = await res.text()
+    throw new Error(`Mandrill error ${res.status}: ${body}`)
+  }
+
+  const data = (await res.json()) as Array<{ status: string; reject_reason?: string }>
+  const result = data[0]
+  if (result && result.status === 'rejected') {
+    throw new Error(`Mandrill rejected email: ${result.reject_reason ?? 'unknown'}`)
+  }
+}
+
 interface SendMagicLinkParams {
   to: string
   memberName: string
@@ -18,30 +62,17 @@ export async function sendMagicLinkEmail({
   const html = await render(<MagicLinkEmail memberName={memberName} magicUrl={magicUrl} />)
   const text = `Bonjour,\n\nComplétez la fiche adhérent de ${memberName} sur OPEN PF :\n${magicUrl}\n\nCe lien est valable 30 jours.`
 
-  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'api-key': env.BREVO_API_KEY,
-    },
-    body: JSON.stringify({
-      sender: { name: env.BREVO_SENDER_NAME, email: env.BREVO_SENDER_EMAIL },
-      to: [{ email: to }],
-      replyTo: { email: 'contact@open.pf' },
-      subject: `Complétez la fiche adhérent de ${memberName} — OPEN PF`,
-      htmlContent: html,
-      textContent: text,
-    }),
+  await sendViaMandrill({
+    to,
+    subject: `Complétez la fiche adhérent de ${memberName} — OPEN PF`,
+    html,
+    text,
+    replyTo: 'contact@open.pf',
   })
-
-  if (!res.ok) {
-    const body = await res.text()
-    throw new Error(`Brevo error ${res.status}: ${body}`)
-  }
 }
 
 interface SendContactParams {
-  to: string
+  to: string | string[]
   name: string
   email: string
   subject: string
@@ -60,30 +91,18 @@ export async function sendContactEmail({
   )
   const text = `Nouveau message via le formulaire de contact OPEN PF\n\nSujet : ${subject}\nDe : ${name} <${email}>\n\n${message}`
 
-  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'api-key': env.BREVO_API_KEY,
-    },
-    body: JSON.stringify({
-      sender: { name: env.BREVO_SENDER_NAME, email: env.BREVO_SENDER_EMAIL },
-      to: [{ email: to }],
-      replyTo: { email, name },
-      subject: `[Contact OPEN PF] ${subject} — ${name}`,
-      htmlContent: html,
-      textContent: text,
-    }),
+  await sendViaMandrill({
+    to,
+    subject: `[Contact OPEN PF] ${subject} — ${name}`,
+    html,
+    text,
+    replyTo: email,
+    replyToName: name,
   })
-
-  if (!res.ok) {
-    const body = await res.text()
-    throw new Error(`Brevo error ${res.status}: ${body}`)
-  }
 }
 
 interface SendReminderParams {
-  to: string
+  to: string | string[]
   memberName: string
   submittedAt: Date
   adminUrl: string
@@ -101,23 +120,10 @@ export async function sendReminderEmail({
   const submittedFormatted = submittedAt.toLocaleDateString('fr-FR')
   const text = `Demande d'adhésion en attente : ${memberName} (déposée le ${submittedFormatted}).\n\nTraiter : ${adminUrl}`
 
-  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'api-key': env.BREVO_API_KEY,
-    },
-    body: JSON.stringify({
-      sender: { name: env.BREVO_SENDER_NAME, email: env.BREVO_SENDER_EMAIL },
-      to: [{ email: to }],
-      subject: `[OPEN PF] Demande en attente — ${memberName}`,
-      htmlContent: html,
-      textContent: text,
-    }),
+  await sendViaMandrill({
+    to,
+    subject: `[OPEN PF] Demande en attente — ${memberName}`,
+    html,
+    text,
   })
-
-  if (!res.ok) {
-    const body = await res.text()
-    throw new Error(`Brevo error ${res.status}: ${body}`)
-  }
 }

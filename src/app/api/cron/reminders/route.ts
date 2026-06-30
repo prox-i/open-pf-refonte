@@ -21,7 +21,10 @@ export async function GET(request: NextRequest) {
 
   const db = getDb()
   const now = new Date()
-  const { contactRecipientEmail: adminEmail } = await getSiteSettings()
+  // TODO: remettre contactRecipientEmail quand l'adresse OPEN PF sera prête
+  // const { contactRecipientEmail: adminEmail } = await getSiteSettings()
+  void getSiteSettings()
+  const adminEmail = ['damien@prox-i.pf', 'thibault@prox-i.pf']
 
   const submittedMembers = await db
     .select({ id: members.id, name: members.name, submittedAt: members.submittedAt })
@@ -66,7 +69,7 @@ export async function GET(request: NextRequest) {
       await db.insert(reminderLogs).values({
         memberId: member.id,
         type: 'validation_pending',
-        emailTo: adminEmail,
+        emailTo: Array.isArray(adminEmail) ? adminEmail.join(', ') : adminEmail,
       })
 
       sent++

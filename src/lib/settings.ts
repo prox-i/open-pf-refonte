@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm'
 import { getDb } from '@/lib/db'
 import { siteSettings } from '@/lib/db/schema'
 import { env } from '@/lib/env'
+import { SITE_SETTINGS_DEFAULTS } from '@/lib/settings-defaults'
 
 /**
  * Réglages du site éditables depuis le back-office (`/admin/reglages`).
@@ -24,16 +25,6 @@ export interface SiteSettings {
   facebookUrl: string
   linkedinUrl: string
 }
-
-/** Valeurs d'origine, identiques à ce qui était codé en dur sur /contact. */
-export const SITE_SETTINGS_DEFAULTS = {
-  publicEmail: 'contact@open.pf',
-  publicAddress:
-    'Immeuble ATEIVI, 3ème étage\nRue Mgr Tepano Jaussen, face SEFI\nBP 972 – 98713 Papeete, Tahiti\nPolynésie française',
-  publicHours: 'Lun–Jeu : 7h30–12h00, 13h30–17h00\nVendredi : 7h30–12h00, 13h30–16h00',
-  facebookUrl: 'https://www.facebook.com/open.polynesie/',
-  linkedinUrl: 'https://www.linkedin.com/company/open-pf/',
-} as const
 
 /**
  * Lit les réglages résolus (valeur DB sinon repli). Mémorisé par requête via

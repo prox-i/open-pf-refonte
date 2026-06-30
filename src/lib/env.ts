@@ -11,10 +11,10 @@ const envSchema = z.object({
   // Magic links
   MAGIC_LINK_SECRET: z.string().min(32),
 
-  // Brevo
-  BREVO_API_KEY: z.string().min(1),
-  BREVO_SENDER_EMAIL: z.string().email(),
-  BREVO_SENDER_NAME: z.string().min(1),
+  // Mandrill
+  MANDRILL_API_KEY: z.string().min(1),
+  MANDRILL_SENDER_EMAIL: z.string().email(),
+  MANDRILL_SENDER_NAME: z.string().min(1),
 
   // Cron
   CRON_SECRET: z.string().min(16),

@@ -107,7 +107,8 @@ Site vitrine + module d'adhésion pour une organisation patronale du numérique 
 │   │   │   ├── offres-emploi/
 │   │   │   ├── evenements/
 │   │   │   ├── relances/page.tsx    # journal d'envoi
-│   │   │   └── parametres/page.tsx  # chiffres clés, bureau, frise
+│   │   │   ├── contenu/page.tsx     # éditorial : chiffres clés, bureau, frise (CRUD)
+│   │   │   └── reglages/page.tsx    # réglages site : email destinataire, coordonnées publiques
 │   │   │
 │   │   ├── api/
 │   │   │   ├── cron/
@@ -193,11 +194,13 @@ Schéma haut niveau — voir `src/lib/db/schema.ts` pour la version exhaustive.
 - **`news`** — actualités (id, slug, title, excerpt, body, category, published_at, status)
 - **`news_categories`**
 - **`job_offers`** — offres d'emploi
-- **`events`** — Tremplins du Numérique
 - **`partners`** — bloc partenaires
-- **`team_members`** — bureau
-- **`timeline_events`** — frise chronologique
+- **`team_members`** — bureau (CRUD via `/admin/contenu`)
+- **`timeline_events`** — frise chronologique (CRUD via `/admin/contenu`)
 - **`site_stats`** — chiffres clés (**source de vérité unique** pour résoudre l'incohérence 51/65)
+- **`site_settings`** — réglages éditables (1 ligne, id=1) : email destinataire des contacts/relances + coordonnées publiques de /contact. Lecture via `lib/settings.ts` avec **repli** sur les valeurs d'env / défauts si vide. Édité via `/admin/reglages`.
+
+> La table `events` (Tremplins du Numérique) a été supprimée (migration `0003_drop_events`).
 
 - **`admin_users`** — Auth.js (id, email, password_hash, name)
 - **`reminder_logs`** — journal d'envoi (member_id, type, sent_at, status)
@@ -331,7 +334,7 @@ MAGIC_LINK_SECRET=...            # openssl rand -base64 32
 
 # Brevo
 BREVO_API_KEY=...
-BREVO_SENDER_EMAIL=contact@open.pf
+BREVO_SENDER_EMAIL=emailtestopen@prox-i.pf   # expéditeur (FROM) — domaine authentifié Brevo
 BREVO_SENDER_NAME=OPEN PF
 
 # Cron
@@ -345,11 +348,15 @@ NEXT_PUBLIC_PLAUSIBLE_DOMAIN=open.pf
 SENTRY_DSN=...
 NEXT_PUBLIC_SENTRY_DSN=...
 
-# Admin destinataire des notifications
-ADMIN_NOTIFICATION_EMAIL=bureau@open.pf
+# Admin destinataire des notifications (REPLI uniquement)
+# La valeur réellement utilisée est lue depuis site_settings.contact_recipient_email
+# (éditable dans /admin/reglages). Cette env ne sert que de repli initial.
+ADMIN_NOTIFICATION_EMAIL=contact@open.pf
 ```
 
 Toutes ces variables sont validées au démarrage via `src/lib/env.ts` (sinon : crash explicite, pas de fail silencieux).
+
+> **Sender vs destinataire.** `BREVO_SENDER_EMAIL` = adresse d'envoi (FROM), qui **doit** appartenir à un domaine authentifié dans Brevo (SPF/DKIM). `open.pf` n'autorise pas Brevo dans son SPF (`include:sendgrid.net … -all`, DMARC `quarantine`) → on envoie depuis `emailtestopen@prox-i.pf` (domaine validé). Le **destinataire** des contacts/relances est `site_settings.contact_recipient_email` (repli `ADMIN_NOTIFICATION_EMAIL`).
 
 ---
 
@@ -365,7 +372,7 @@ Découper le travail en lots commitables. **Ne pas tout générer en une seule p
 | **P3 — Site public statique** | Toutes les pages vitrine en lecture (accueil, réseau, adhérents, actus, offres, tremplins, contact) avec données mockées puis DB | Site navigable |
 | **P4 — Adhésion** | Form 5 étapes, Server Action, e-mails Brevo, magic link | Parcours adhésion fonctionnel |
 | **P5 — Fiche adhérent** | Page `/fiche/[token]`, upload logo, save brouillon | Adhérent peut compléter sa fiche |
-| **P6 — Back-office** | Auth admin, dashboard, gestion demandes/fiches/actus/offres/events/relances/paramètres | Bureau autonome |
+| **P6 — Back-office** | Auth admin, dashboard, gestion demandes/fiches/actus/offres/relances + **contenu** (chiffres, bureau, frise) et **réglages** (email destinataire, coordonnées) | Bureau autonome |
 | **P7 — Cron relances** | Endpoint cron, logique J+3 puis +7j, journal | Relances qui tournent |
 | **P8 — SEO/perf/a11y** | Sitemap, JSON-LD, Web Vitals, axe-core, redirections 301 | Audit propre |
 | **P9 — Recette & doc** | Tests e2e des parcours critiques, doc d'admin pour le bureau, README de déploiement | Prêt production |

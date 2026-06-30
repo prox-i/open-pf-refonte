@@ -37,8 +37,13 @@ Avantages :
 - URL directe `/adhesion` ou rafraîchissement → page complète SSR
 - Partageable, indexable, accessible (focus trap géré par Radix `<Dialog>` de Shadcn)
 
+> **MAJ BO (2026-06)** : la rubrique `admin-parametres` n'existe plus. Le contenu éditorial
+> (chiffres clés, bureau, frise) vit dans **`/admin/contenu`** ; les réglages du site
+> (email destinataire des contacts/relances, coordonnées publiques de /contact) dans
+> **`/admin/reglages`** (table `site_settings`, lue via `src/lib/settings.ts` avec repli).
+
 ### Chiffres clés : calcul automatique
-Le champ "nombre d'adhérents" dans `admin-parametres` est **lecture seule**, calculé en temps réel :
+Le champ "nombre d'adhérents" dans `/admin/contenu` est **lecture seule**, calculé en temps réel :
 
 ```typescript
 // src/lib/db/queries/stats.ts

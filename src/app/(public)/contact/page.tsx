@@ -1,8 +1,14 @@
 import type { Metadata } from 'next'
+import { Fragment } from 'react'
 import Link from 'next/link'
 import { CtaBand } from '@/components/public/cta-band'
 import { ContactForm } from '@/components/public/contact-form'
 import { buildBreadcrumbJsonLd } from '@/lib/seo'
+import { getSiteSettings } from '@/lib/settings'
+
+// ISR : les coordonnées changent rarement ; la sauvegarde dans le BO
+// déclenche un revalidatePath('/contact') pour une mise à jour immédiate.
+export const revalidate = 86400
 
 export const metadata: Metadata = {
   title: 'Contact',
@@ -20,7 +26,19 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', images: ['/logo-open.png'] },
 }
 
-export default function ContactPage() {
+/** Rend un texte multi-lignes en insérant des <br/> entre chaque ligne. */
+function multiline(text: string) {
+  const lines = text.split('\n')
+  return lines.map((line, i) => (
+    <Fragment key={i}>
+      {line}
+      {i < lines.length - 1 && <br />}
+    </Fragment>
+  ))
+}
+
+export default async function ContactPage() {
+  const settings = await getSiteSettings()
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
     { name: 'Accueil', href: '/' },
     { name: 'Contact', href: '/contact' },
@@ -69,7 +87,7 @@ export default function ContactPage() {
               <p>
                 <strong>Email</strong>
                 <br />
-                <a href="mailto:contact@open.pf">contact@open.pf</a>
+                <a href={`mailto:${settings.publicEmail}`}>{settings.publicEmail}</a>
               </p>
             </div>
 
@@ -85,13 +103,7 @@ export default function ContactPage() {
               <p>
                 <strong>Adresse</strong>
                 <br />
-                Immeuble ATEIVI, 3ème étage
-                <br />
-                Rue Mgr Tepano Jaussen, face SEFI
-                <br />
-                BP 972 – 98713 Papeete, Tahiti
-                <br />
-                Polynésie française
+                {multiline(settings.publicAddress)}
               </p>
             </div>
 
@@ -107,9 +119,7 @@ export default function ContactPage() {
               <p>
                 <strong>Horaires</strong>
                 <br />
-                Lun–Jeu : 7h30–12h00, 13h30–17h00
-                <br />
-                Vendredi : 7h30–12h00, 13h30–16h00
+                {multiline(settings.publicHours)}
               </p>
             </div>
 
@@ -125,19 +135,11 @@ export default function ContactPage() {
               <p>
                 <strong>Réseaux sociaux</strong>
                 <br />
-                <a
-                  href="https://www.facebook.com/open.polynesie/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a href={settings.facebookUrl} target="_blank" rel="noopener noreferrer">
                   Facebook
                 </a>
                 {' · '}
-                <a
-                  href="https://www.linkedin.com/company/open-pf/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a href={settings.linkedinUrl} target="_blank" rel="noopener noreferrer">
                   LinkedIn
                 </a>
               </p>

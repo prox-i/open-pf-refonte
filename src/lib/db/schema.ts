@@ -197,6 +197,21 @@ export const siteStats = pgTable('site_stats', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
+// Single-row table for site-wide editable settings (réglages).
+// Read at runtime with a fallback to env vars when a field is empty —
+// see src/lib/settings.ts. Lets the bureau change the contact recipient
+// and public coordinates without a redeploy.
+export const siteSettings = pgTable('site_settings', {
+  id: integer('id').primaryKey().default(1), // always 1
+  contactRecipientEmail: varchar('contact_recipient_email', { length: 255 }), // où arrivent les messages
+  publicEmail: varchar('public_email', { length: 255 }), // email affiché sur /contact
+  publicAddress: text('public_address'),
+  publicHours: text('public_hours'),
+  facebookUrl: text('facebook_url'),
+  linkedinUrl: text('linkedin_url'),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
 // ─── Admin ────────────────────────────────────────────────────────────────────
 
 export const adminUsers = pgTable('admin_users', {

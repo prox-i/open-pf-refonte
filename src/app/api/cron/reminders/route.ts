@@ -3,6 +3,7 @@ import { and, desc, eq } from 'drizzle-orm'
 import { getDb } from '@/lib/db'
 import { members, reminderLogs } from '@/lib/db/schema'
 import { sendReminderEmail } from '@/lib/email/client'
+import { getSiteSettings } from '@/lib/settings'
 import { env } from '@/lib/env'
 
 const FIRST_REMINDER_DAYS = 3
@@ -20,6 +21,7 @@ export async function GET(request: NextRequest) {
 
   const db = getDb()
   const now = new Date()
+  const { contactRecipientEmail: adminEmail } = await getSiteSettings()
 
   const submittedMembers = await db
     .select({ id: members.id, name: members.name, submittedAt: members.submittedAt })
@@ -51,7 +53,6 @@ export async function GET(request: NextRequest) {
       continue
     }
 
-    const adminEmail = env.ADMIN_NOTIFICATION_EMAIL
     const adminUrl = `${env.AUTH_URL}/admin/demandes/${member.id}`
 
     try {

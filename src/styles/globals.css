@@ -1978,11 +1978,11 @@ textarea {
 .adhesion-dialog-inner {
   overflow-y: auto;
   max-height: 90dvh;
-  padding: 40px;
+  padding: 28px 32px 32px;
   position: relative;
 }
 .adhesion-dialog-header {
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 .adhesion-dialog-header h2 {
   font-size: 22px;
@@ -2021,6 +2021,32 @@ textarea {
   box-shadow: none;
   border: none;
   padding: 0;
+}
+
+/* Espacements resserrés dans la modale : la navigation normale d'une étape
+   tient sans scroll. L'overflow:auto reste comme filet pour l'étape Contacts
+   (la version « boxed » peut scroller quand on ajoute des contacts). */
+.adhesion-dialog .stepper {
+  margin-bottom: 24px;
+}
+.adhesion-dialog .form-step {
+  margin-bottom: 20px;
+}
+.adhesion-dialog .form-step-legend {
+  margin-bottom: 14px;
+}
+.adhesion-dialog .form-grid {
+  gap: 16px;
+}
+.adhesion-dialog .form-actions {
+  margin-top: 20px;
+  padding-top: 16px;
+}
+.adhesion-dialog input,
+.adhesion-dialog select,
+.adhesion-dialog textarea {
+  min-height: 46px;
+  padding: 11px 14px;
 }
 
 @media (max-width: 640px) {

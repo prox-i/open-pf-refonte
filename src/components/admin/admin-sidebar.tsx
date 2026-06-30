@@ -27,7 +27,8 @@ export function AdminSidebar({ userName, pendingCount, pendingFichesCount }: Adm
     { href: '/admin/actualites', label: 'Actualités' },
     { href: '/admin/offres-emploi', label: "Offres d'emploi" },
     { href: '/admin/relances', label: 'Relances' },
-    { href: '/admin/parametres', label: 'Paramètres' },
+    { href: '/admin/contenu', label: 'Contenu du site' },
+    { href: '/admin/reglages', label: 'Réglages' },
   ]
 
   function isActive(href: string) {

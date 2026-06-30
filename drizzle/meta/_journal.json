@@ -29,6 +29,13 @@
       "when": 1748131200000,
       "tag": "0003_drop_events",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1782208088249,
+      "tag": "0004_add_site_settings",
+      "breakpoints": true
     }
   ]
 }

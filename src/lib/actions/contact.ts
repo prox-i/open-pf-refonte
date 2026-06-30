@@ -2,7 +2,7 @@
 
 import { contactSchema } from '@/lib/validations/contact'
 import { sendContactEmail } from '@/lib/email/client'
-import { env } from '@/lib/env'
+import { getSiteSettings } from '@/lib/settings'
 
 type ContactResult =
   | { success: true }
@@ -23,9 +23,11 @@ export async function submitContact(raw: unknown): Promise<ContactResult> {
   // Honeypot: a filled hidden field means a bot. Silently succeed (don't tip off the bot).
   if (company) return { success: true }
 
+  const { contactRecipientEmail } = await getSiteSettings()
+
   try {
     await sendContactEmail({
-      to: env.ADMIN_NOTIFICATION_EMAIL,
+      to: contactRecipientEmail,
       name,
       email,
       subject,

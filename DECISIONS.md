@@ -57,6 +57,10 @@ Accessibilité : Shadcn `<Dialog>` (Radix) gère focus trap, ESC pour fermer, AR
 
 Le mockup `admin-parametres.html` reflète ces règles (champ adhérents en lecture seule + tag "AUTO").
 
+> **MAJ BO (2026-06)** : la rubrique « Paramètres » a été scindée en deux dans le back-office —
+> **Contenu du site** (`/admin/contenu` : chiffres clés, bureau, frise, tous éditables) et
+> **Réglages** (`/admin/reglages` : email destinataire, coordonnées publiques de /contact).
+
 ---
 
 ## ✋ 5. Modération des fiches
@@ -96,10 +100,14 @@ inactive (historique conservé, non visible)
 - **Audit log** activé (qui a validé/désactivé quoi, quand)
 
 ### 6.4 E-mails transactionnels
-- **Expéditeur** : `noreply@open.pf` (à créer côté DNS)
-- **Réponse-à** : `contact@open.pf`
+- **Expéditeur (FROM)** : `emailtestopen@prox-i.pf` — domaine **authentifié** dans Brevo (SPF/DKIM OK).
+  ⚠️ `open.pf` n'autorise PAS Brevo dans son SPF (`include:sendgrid.net … -all`, DMARC `quarantine`) :
+  tant que le DNS d'`open.pf` n'aura pas reçu l'include `spf.brevo.com` + les DKIM Brevo, on n'envoie
+  pas depuis `@open.pf` (mails bloqués/spam). `BREVO_SENDER_EMAIL` porte cette adresse.
+- **Réponse-à** : email du contact (formulaire) / `contact@open.pf`
+- **Destinataire** des contacts + relances : `site_settings.contact_recipient_email`
+  (éditable dans `/admin/reglages`, repli sur `ADMIN_NOTIFICATION_EMAIL`)
 - **Service** : Brevo (templates dans `src/lib/email/templates/` via React Email)
-- **Tous éditables depuis le BO** après lancement (section Paramètres > E-mails)
 
 ---
 

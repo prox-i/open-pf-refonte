@@ -1,0 +1,60 @@
+import { cache } from 'react'
+import { eq } from 'drizzle-orm'
+import { getDb } from '@/lib/db'
+import { siteSettings } from '@/lib/db/schema'
+import { env } from '@/lib/env'
+
+/**
+ * Réglages du site éditables depuis le back-office (`/admin/reglages`).
+ *
+ * Les valeurs vivent dans la table `site_settings` (une seule ligne, id=1).
+ * Chaque champ vide retombe sur une valeur par défaut — variable d'env pour
+ * l'email destinataire, contenu d'origine de la page /contact pour le reste.
+ * Aucune régression possible si la ligne n'existe pas encore.
+ */
+export interface SiteSettings {
+  /** Destinataire des messages de contact + relances. */
+  contactRecipientEmail: string
+  /** Email affiché publiquement sur la page /contact. */
+  publicEmail: string
+  /** Adresse postale (multi-lignes). */
+  publicAddress: string
+  /** Horaires d'ouverture (multi-lignes). */
+  publicHours: string
+  facebookUrl: string
+  linkedinUrl: string
+}
+
+/** Valeurs d'origine, identiques à ce qui était codé en dur sur /contact. */
+const DEFAULTS = {
+  publicEmail: 'contact@open.pf',
+  publicAddress:
+    'Immeuble ATEIVI, 3ème étage\nRue Mgr Tepano Jaussen, face SEFI\nBP 972 – 98713 Papeete, Tahiti\nPolynésie française',
+  publicHours: 'Lun–Jeu : 7h30–12h00, 13h30–17h00\nVendredi : 7h30–12h00, 13h30–16h00',
+  facebookUrl: 'https://www.facebook.com/open.polynesie/',
+  linkedinUrl: 'https://www.linkedin.com/company/open-pf/',
+} as const
+
+/**
+ * Lit les réglages résolus (valeur DB sinon repli). Mémorisé par requête via
+ * `cache()` pour éviter les requêtes répétées dans une même page/action.
+ */
+export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
+  let row: typeof siteSettings.$inferSelect | undefined
+  try {
+    const db = getDb()
+    ;[row] = await db.select().from(siteSettings).where(eq(siteSettings.id, 1)).limit(1)
+  } catch {
+    // DB injoignable / table absente : on sert les valeurs par défaut.
+    row = undefined
+  }
+
+  return {
+    contactRecipientEmail: row?.contactRecipientEmail || env.ADMIN_NOTIFICATION_EMAIL,
+    publicEmail: row?.publicEmail || DEFAULTS.publicEmail,
+    publicAddress: row?.publicAddress || DEFAULTS.publicAddress,
+    publicHours: row?.publicHours || DEFAULTS.publicHours,
+    facebookUrl: row?.facebookUrl || DEFAULTS.facebookUrl,
+    linkedinUrl: row?.linkedinUrl || DEFAULTS.linkedinUrl,
+  }
+})

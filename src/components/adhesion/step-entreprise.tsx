@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
 import type { AdhesionData } from '@/lib/validations/adhesion'
 import { LEGAL_STATUSES } from '@/lib/data/referentials'
@@ -13,6 +14,11 @@ export function StepEntreprise({ form }: Props) {
     register,
     formState: { errors },
   } = form
+
+  const yearField = register('yearFounded', {
+    setValueAs: (v: string) => (v === '' ? undefined : parseInt(v, 10)),
+  })
+  const prevYearRef = useRef('')
   return (
     <fieldset className="form-step">
       <legend className="form-step-legend">Informations entreprise</legend>
@@ -114,9 +120,22 @@ export function StepEntreprise({ form }: Props) {
             min="1900"
             max={new Date().getFullYear()}
             placeholder="2010"
-            {...register('yearFounded', {
-              setValueAs: (v: string) => (v === '' ? undefined : parseInt(v, 10)),
-            })}
+            inputMode="numeric"
+            autoComplete="off"
+            data-1p-ignore="true"
+            data-lpignore="true"
+            {...yearField}
+            onChange={(e) => {
+              // Stepper/flèches sur un champ vide retombent sur min (1900) :
+              // on démarre plutôt à 2010. La saisie au clavier progresse
+              // caractère par caractère, donc un saut direct '' → '1900' ne
+              // peut venir que du spinner ou des flèches.
+              if (prevYearRef.current === '' && e.target.value === '1900') {
+                e.target.value = '2010'
+              }
+              prevYearRef.current = e.target.value
+              void yearField.onChange(e)
+            }}
           />
         </div>
 
@@ -127,6 +146,10 @@ export function StepEntreprise({ form }: Props) {
             type="number"
             min="0"
             placeholder="10"
+            inputMode="numeric"
+            autoComplete="off"
+            data-1p-ignore="true"
+            data-lpignore="true"
             {...register('employeeCount', {
               setValueAs: (v: string) => (v === '' ? undefined : parseInt(v, 10)),
             })}

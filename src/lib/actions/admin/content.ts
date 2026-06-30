@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { getDb } from '@/lib/db'
-import { news, jobOffers } from '@/lib/db/schema'
+import { news, jobOffers, teamMembers, timelineEvents } from '@/lib/db/schema'
 import { auth } from '@/lib/auth/session'
 import { toSlug } from '@/lib/utils'
 
@@ -150,6 +150,104 @@ export async function deleteJob(id: string): Promise<{ success: boolean }> {
   const db = getDb()
   await db.delete(jobOffers).where(eq(jobOffers.id, id))
   revalidatePath('/admin/offres-emploi')
+  return { success: true }
+}
+
+// ─── Bureau OPEN (team_members) ──────────────────────────────────────────────
+
+const teamMemberSchema = z.object({
+  fullName: z.string().min(1, 'Nom requis'),
+  role: z.string().min(1, 'Rôle requis'),
+  photoUrl: z.string().url('URL invalide').optional().or(z.literal('')),
+  sortOrder: z.coerce.number().int().min(0).default(0),
+  isActive: z.boolean().default(true),
+})
+
+function revalidateBureau() {
+  revalidatePath('/admin/contenu')
+  revalidatePath('/reseau')
+  revalidatePath('/')
+}
+
+export async function upsertTeamMember(
+  raw: unknown,
+  id?: string,
+): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin()
+  const parsed = teamMemberSchema.safeParse(raw)
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? 'Données invalides' }
+  }
+
+  const d = parsed.data
+  const values = {
+    fullName: d.fullName,
+    role: d.role,
+    photoUrl: d.photoUrl || null,
+    sortOrder: d.sortOrder,
+    isActive: d.isActive,
+  }
+  const db = getDb()
+
+  if (id) {
+    await db.update(teamMembers).set(values).where(eq(teamMembers.id, id))
+  } else {
+    await db.insert(teamMembers).values(values)
+  }
+
+  revalidateBureau()
+  return { success: true }
+}
+
+export async function deleteTeamMember(id: string): Promise<{ success: boolean }> {
+  await requireAdmin()
+  const db = getDb()
+  await db.delete(teamMembers).where(eq(teamMembers.id, id))
+  revalidateBureau()
+  return { success: true }
+}
+
+// ─── Frise chronologique (timeline_events) ───────────────────────────────────
+
+const timelineSchema = z.object({
+  year: z.coerce.number().int().min(1900, 'Année invalide').max(2100, 'Année invalide'),
+  description: z.string().min(1, 'Description requise'),
+  sortOrder: z.coerce.number().int().min(0).default(0),
+})
+
+function revalidateTimeline() {
+  revalidatePath('/admin/contenu')
+  revalidatePath('/reseau')
+}
+
+export async function upsertTimelineEvent(
+  raw: unknown,
+  id?: string,
+): Promise<{ success: boolean; error?: string }> {
+  await requireAdmin()
+  const parsed = timelineSchema.safeParse(raw)
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? 'Données invalides' }
+  }
+
+  const values = parsed.data
+  const db = getDb()
+
+  if (id) {
+    await db.update(timelineEvents).set(values).where(eq(timelineEvents.id, id))
+  } else {
+    await db.insert(timelineEvents).values(values)
+  }
+
+  revalidateTimeline()
+  return { success: true }
+}
+
+export async function deleteTimelineEvent(id: string): Promise<{ success: boolean }> {
+  await requireAdmin()
+  const db = getDb()
+  await db.delete(timelineEvents).where(eq(timelineEvents.id, id))
+  revalidateTimeline()
   return { success: true }
 }
 

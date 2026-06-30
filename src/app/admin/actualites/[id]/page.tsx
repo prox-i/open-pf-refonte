@@ -32,6 +32,7 @@ export default async function EditActualitePage({ params }: Props) {
         id={id}
         initialData={{
           title: article.title,
+          slug: article.slug,
           excerpt: article.excerpt ?? '',
           content: article.content ?? '',
           authorName: article.authorName ?? '',

@@ -38,6 +38,7 @@ export default async function EditJobPage({ params }: Props) {
           salary: job.salary ?? '',
           applicationUrl: job.applicationUrl ?? '',
           applicationEmail: job.applicationEmail ?? '',
+          metaDescription: job.metaDescription ?? '',
           status: job.status,
         }}
       />

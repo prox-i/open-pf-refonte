@@ -14,6 +14,7 @@ const schema = z.object({
   salary: z.string().optional().or(z.literal('')),
   applicationUrl: z.string().url('URL invalide').optional().or(z.literal('')),
   applicationEmail: z.string().email('Email invalide').optional().or(z.literal('')),
+  metaDescription: z.string().max(160).optional().or(z.literal('')),
   status: z.enum(['draft', 'published', 'closed']),
 })
 
@@ -36,6 +37,7 @@ export function JobForm({ id, initialData }: JobFormProps) {
       salary: initialData?.salary ?? '',
       applicationUrl: initialData?.applicationUrl ?? '',
       applicationEmail: initialData?.applicationEmail ?? '',
+      metaDescription: initialData?.metaDescription ?? '',
       status: initialData?.status ?? 'draft',
     },
   })
@@ -99,6 +101,15 @@ export function JobForm({ id, initialData }: JobFormProps) {
           <div className="form-field">
             <label htmlFor="applicationUrl">URL de candidature</label>
             <input id="applicationUrl" type="url" {...form.register('applicationUrl')} />
+          </div>
+          <div className="form-field">
+            <label htmlFor="metaDescription">Meta description (160 car.)</label>
+            <input
+              id="metaDescription"
+              type="text"
+              maxLength={160}
+              {...form.register('metaDescription')}
+            />
           </div>
           <div className="form-field">
             <label htmlFor="status">Statut</label>

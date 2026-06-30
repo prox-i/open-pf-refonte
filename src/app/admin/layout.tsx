@@ -12,7 +12,7 @@ async function getAdminCounts() {
     .select({ count: count() })
     .from(members)
     .where(eq(members.status, 'submitted'))
-  return { pendingCount: pending?.count ?? 0, pendingFichesCount: 0 }
+  return { pendingCount: pending?.count ?? 0 }
 }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -27,14 +27,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const session = await auth()
   if (!session?.user) redirect('/admin/login')
 
-  const { pendingCount, pendingFichesCount } = await getAdminCounts()
+  const { pendingCount } = await getAdminCounts()
 
   return (
     <div className="admin-layout">
       <AdminSidebar
         userName={session.user.name ?? session.user.email ?? 'Admin'}
         pendingCount={pendingCount}
-        pendingFichesCount={pendingFichesCount}
       />
       <main className="admin-main" id="contenu">
         {children}

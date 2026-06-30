@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 
@@ -13,17 +14,17 @@ interface NavItem {
 interface AdminSidebarProps {
   userName: string
   pendingCount: number
-  pendingFichesCount: number
 }
 
-export function AdminSidebar({ userName, pendingCount, pendingFichesCount }: AdminSidebarProps) {
+export function AdminSidebar({ userName, pendingCount }: AdminSidebarProps) {
   const pathname = usePathname()
 
+  // BO-012 : « Demandes d'adhésion » et « Fiches à valider » pointaient sur la
+  // même finalité → on ne garde qu'une seule entrée (Demandes d'adhésion).
   const navItems: NavItem[] = [
     { href: '/admin', label: "Vue d'ensemble" },
     { href: '/admin/demandes', label: "Demandes d'adhésion", badge: pendingCount },
     { href: '/admin/adherents', label: 'Adhérents' },
-    { href: '/admin/fiches', label: 'Fiches à valider', badge: pendingFichesCount },
     { href: '/admin/actualites', label: 'Actualités' },
     { href: '/admin/offres-emploi', label: "Offres d'emploi" },
     { href: '/admin/relances', label: 'Relances' },
@@ -38,8 +39,9 @@ export function AdminSidebar({ userName, pendingCount, pendingFichesCount }: Adm
 
   return (
     <aside className="admin-sidebar">
-      <Link href="/" className="brand admin-brand" aria-label="OPEN Polynésie française, accueil">
-        <span className="open-logo-mark" aria-hidden="true" />
+      {/* BO-017 : le logo renvoie vers la home du back-office. BO-022 : vrai logo OPEN. */}
+      <Link href="/admin" className="brand admin-brand" aria-label="Back-office OPEN, accueil">
+        <Image src="/logo-open.svg" alt="" width={40} height={40} className="admin-brand-logo" />
         <span>
           <span className="brand-word">OPEN</span>
           <span className="brand-sub">

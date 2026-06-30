@@ -9,6 +9,7 @@ import { upsertNews } from '@/lib/actions/admin/content'
 
 const schema = z.object({
   title: z.string().min(1, 'Titre requis'),
+  slug: z.string().optional().or(z.literal('')),
   excerpt: z.string().optional().or(z.literal('')),
   content: z.string().optional().or(z.literal('')),
   authorName: z.string().optional().or(z.literal('')),
@@ -34,6 +35,7 @@ export function NewsForm({ id, initialData }: NewsFormProps) {
     resolver: zodResolver(schema),
     defaultValues: {
       title: initialData?.title ?? '',
+      slug: initialData?.slug ?? '',
       excerpt: initialData?.excerpt ?? '',
       content: initialData?.content ?? '',
       authorName: initialData?.authorName ?? '',
@@ -83,6 +85,15 @@ export function NewsForm({ id, initialData }: NewsFormProps) {
           {form.formState.errors.title && (
             <p className="field-error">{form.formState.errors.title.message}</p>
           )}
+        </div>
+
+        <div className="form-field">
+          <label htmlFor="slug">URL de l’article (slug)</label>
+          <input id="slug" type="text" placeholder="ex. voeux-2025" {...form.register('slug')} />
+          <p style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
+            Laisser vide pour générer automatiquement depuis le titre. Modifier le slug change l’URL
+            publique de l’article.
+          </p>
         </div>
 
         <div className="form-field">

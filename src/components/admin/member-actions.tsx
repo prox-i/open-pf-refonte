@@ -6,6 +6,7 @@ import {
   approveMember,
   rejectMember,
   deactivateMember,
+  reactivateMember,
   sendMagicLink,
 } from '@/lib/actions/admin/members'
 
@@ -80,6 +81,17 @@ export function MemberActions({ memberId, status }: MemberActionsProps) {
           onClick={() => handle(() => deactivateMember(memberId), 'deactivate')}
         >
           {loading === 'deactivate' ? '…' : 'Désactiver'}
+        </button>
+      )}
+
+      {status === 'inactive' && (
+        <button
+          type="button"
+          className="btn"
+          disabled={loading !== null}
+          onClick={() => handle(() => reactivateMember(memberId), 'reactivate')}
+        >
+          {loading === 'reactivate' ? '…' : 'Réactiver'}
         </button>
       )}
     </div>

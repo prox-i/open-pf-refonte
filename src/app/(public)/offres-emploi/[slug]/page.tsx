@@ -49,12 +49,10 @@ export default async function JobDetailPage({ params }: Props) {
   ])
   const jobJsonLd = buildJobPostingJsonLd(job)
 
-  const applyHref = job.applicationUrl
-    ? job.applicationUrl
-    : job.applicationEmail
-      ? `mailto:${job.applicationEmail}?subject=${encodeURIComponent(`Candidature : ${job.title}`)}`
-      : null
-  const applyIsExternal = Boolean(job.applicationUrl)
+  // BO-020 : proposer les deux voies de candidature quand elles existent.
+  const mailtoHref = job.applicationEmail
+    ? `mailto:${job.applicationEmail}?subject=${encodeURIComponent(`Candidature : ${job.title}`)}`
+    : null
 
   return (
     <>
@@ -132,15 +130,23 @@ export default async function JobDetailPage({ params }: Props) {
             </p>
           )}
 
-          {applyHref && (
-            <div style={{ marginTop: '40px' }}>
-              <a
-                href={applyHref}
-                className="btn"
-                {...(applyIsExternal && { target: '_blank', rel: 'noopener noreferrer' })}
-              >
-                Postuler à cette offre
-              </a>
+          {(job.applicationUrl || mailtoHref) && (
+            <div style={{ marginTop: '40px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              {job.applicationUrl && (
+                <a
+                  href={job.applicationUrl}
+                  className="btn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Postuler en ligne
+                </a>
+              )}
+              {mailtoHref && (
+                <a href={mailtoHref} className={job.applicationUrl ? 'btn btn-secondary' : 'btn'}>
+                  Postuler par email
+                </a>
+              )}
             </div>
           )}
 

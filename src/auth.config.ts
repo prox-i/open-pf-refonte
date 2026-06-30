@@ -5,7 +5,8 @@ import type { NextAuthConfig } from 'next-auth'
 export const authConfig = {
   pages: { signIn: '/admin/login' },
   trustHost: true,
-  session: { strategy: 'jwt' as const },
+  // Session admin expirante : 8 h (au lieu des 30 j par défaut de NextAuth). BO-003.
+  session: { strategy: 'jwt' as const, maxAge: 60 * 60 * 8 },
   callbacks: {
     jwt({ token, user }) {
       if (user) token['adminId'] = user.id

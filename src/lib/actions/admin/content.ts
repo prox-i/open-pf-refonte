@@ -6,7 +6,7 @@ import { z } from 'zod'
 import { getDb } from '@/lib/db'
 import { news, jobOffers, teamMembers, timelineEvents } from '@/lib/db/schema'
 import { auth } from '@/lib/auth/session'
-import { toSlug } from '@/lib/utils'
+import { toSlug, stripHtml } from '@/lib/utils'
 
 async function requireAdmin() {
   const session = await auth()
@@ -18,6 +18,8 @@ async function requireAdmin() {
 
 const newsSchema = z.object({
   title: z.string().min(1, 'Titre requis'),
+  // BO-007 : slug personnalisable (laissé vide → généré depuis le titre).
+  slug: z.string().optional().or(z.literal('')),
   excerpt: z.string().optional().or(z.literal('')),
   content: z.string().optional().or(z.literal('')),
   categoryId: z.string().uuid().optional().or(z.literal('')),
@@ -38,13 +40,20 @@ export async function upsertNews(
   const data = parsed.data
   const db = getDb()
 
+  // BO-008 : nettoyer les balises HTML héritées de WordPress.
+  const cleanContent = data.content ? stripHtml(data.content) : null
+  const cleanExcerpt = data.excerpt ? stripHtml(data.excerpt) : null
+  // BO-007 : slug choisi (slugifié) sinon dérivé du titre.
+  const resolvedSlug = data.slug ? toSlug(data.slug) : toSlug(data.title)
+
   if (id) {
     await db
       .update(news)
       .set({
         title: data.title,
-        excerpt: data.excerpt ?? null,
-        content: data.content ?? null,
+        slug: resolvedSlug,
+        excerpt: cleanExcerpt,
+        content: cleanContent,
         categoryId: data.categoryId || null,
         authorName: data.authorName ?? null,
         imageUrl: data.imageUrl ?? null,
@@ -59,14 +68,13 @@ export async function upsertNews(
     return { success: true, id }
   }
 
-  const slug = toSlug(data.title)
   const [inserted] = await db
     .insert(news)
     .values({
-      slug,
+      slug: resolvedSlug,
       title: data.title,
-      excerpt: data.excerpt ?? null,
-      content: data.content ?? null,
+      excerpt: cleanExcerpt,
+      content: cleanContent,
       categoryId: data.categoryId || null,
       authorName: data.authorName ?? null,
       imageUrl: data.imageUrl ?? null,
@@ -100,6 +108,8 @@ const jobSchema = z.object({
   salary: z.string().optional().or(z.literal('')),
   applicationUrl: z.string().url().optional().or(z.literal('')),
   applicationEmail: z.string().email().optional().or(z.literal('')),
+  // BO-009 : méta description SEO pour les offres (existait en DB, absente du form).
+  metaDescription: z.string().max(160).optional().or(z.literal('')),
   memberId: z.string().uuid().optional().or(z.literal('')),
   status: z.enum(['draft', 'published', 'closed']),
 })
@@ -117,12 +127,13 @@ export async function upsertJob(
 
   const values = {
     title: data.title,
-    description: data.description ?? null,
+    description: data.description ? stripHtml(data.description) : null,
     location: data.location ?? null,
     contractType: data.contractType ?? null,
     salary: data.salary ?? null,
     applicationUrl: data.applicationUrl ?? null,
     applicationEmail: data.applicationEmail ?? null,
+    metaDescription: data.metaDescription ?? null,
     memberId: data.memberId || null,
     status: data.status,
     publishedAt: data.status === 'published' ? new Date() : null,

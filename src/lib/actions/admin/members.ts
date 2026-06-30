@@ -92,6 +92,31 @@ export async function deactivateMember(memberId: string): Promise<{ success: boo
   }
 }
 
+export async function reactivateMember(
+  memberId: string,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const adminId = await requireAdmin()
+    const db = getDb()
+
+    // Réactive un adhérent précédemment désactivé (inactive → active). BO-013.
+    await db.update(members).set({ status: 'active' }).where(eq(members.id, memberId))
+
+    await db.insert(auditLog).values({
+      adminId,
+      action: 'member.reactivate',
+      targetType: 'member',
+      targetId: memberId,
+    })
+
+    revalidatePath('/admin/adherents')
+    return { success: true }
+  } catch (e) {
+    console.error('[reactivateMember]', e)
+    return { success: false, error: 'Erreur lors de la réactivation.' }
+  }
+}
+
 export async function sendMagicLink(
   memberId: string,
 ): Promise<{ success: boolean; error?: string }> {

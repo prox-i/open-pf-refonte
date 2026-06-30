@@ -57,12 +57,24 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // Normalise old WordPress URLs — add real ones as needed
-      {
-        source: '/politique-confidentialite',
-        destination: '/confidentialite',
-        permanent: true,
-      },
+      // --- Redirections 301 depuis les URL WordPress legacy (REC-004) ---
+      // Source : page-sitemap.xml de open.pf. Préserve le SEO à la bascule.
+      { source: '/qui-sommes-nous', destination: '/reseau', permanent: true },
+      { source: '/nos-adherents', destination: '/adherents', permanent: true },
+      { source: '/actualite', destination: '/actualites', permanent: true },
+      { source: '/nos-offres-emploi', destination: '/offres-emploi', permanent: true },
+      { source: '/rejoindre-le-mouvement', destination: '/adhesion', permanent: true },
+      { source: '/mention', destination: '/mentions-legales', permanent: true },
+      { source: '/politique-confidentialite', destination: '/confidentialite', permanent: true },
+      // Pages legacy obsolètes → rabattues sur la rubrique actualités.
+      { source: '/les-reunions-du-conseil-administration', destination: '/actualites', permanent: true },
+      { source: '/les-tremplins-du-numerique-ateliers-rencontres', destination: '/actualites', permanent: true },
+      { source: '/tremplins-du-numerique-infos', destination: '/actualites', permanent: true },
+      { source: '/covid', destination: '/actualites', permanent: true },
+      // Article « vœux 2025 » : slug WordPress non descriptif → slug propre (REC-008).
+      // NB : le renommage effectif du slug en base de prod reste à faire via le back-office.
+      { source: '/actualites/3528-2', destination: '/actualites/voeux-2025', permanent: true },
+      { source: '/actualite/3528-2', destination: '/actualites/voeux-2025', permanent: true },
     ]
   },
 }

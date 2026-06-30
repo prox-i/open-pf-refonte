@@ -10,6 +10,10 @@ const inter = Inter({
 
 const BASE_URL = 'https://open.pf'
 
+// Préversions Vercel : noindex global tant que la bascule sur open.pf n'est pas
+// faite, pour éviter le contenu dupliqué (canonical → open.pf). Cf. REC-027.
+const IS_PRODUCTION = process.env.VERCEL_ENV === 'production'
+
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
@@ -27,11 +31,9 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true },
-  },
+  robots: IS_PRODUCTION
+    ? { index: true, follow: true, googleBot: { index: true, follow: true } }
+    : { index: false, follow: false, googleBot: { index: false, follow: false } },
 }
 
 const orgJsonLd = {

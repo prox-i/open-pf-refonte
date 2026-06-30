@@ -940,10 +940,14 @@ p {
 }
 .showcase-logo-wrap {
   position: relative;
+  /* flex:1 ici (et display:flex) pour absorber l'étirement de la grille :
+     la zone logo grandit, le bandeau reste collé en bas à hauteur constante. */
+  flex: 1;
+  display: flex;
 }
 .showcase-link .member-logo-wrap {
-  /* flex: 1 absorbs extra height when CSS Grid stretches the card row */
   flex: 1;
+  width: 100%;
   min-height: 140px;
   border-radius: 0;
   border: none;
@@ -952,7 +956,10 @@ p {
 .showcase-meta {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 3px;
+  /* hauteur constante : 1 ou 2 lignes → même bandeau d'une carte à l'autre. */
+  min-height: 60px;
   padding: 12px 16px 14px;
   background: var(--navy);
   flex-shrink: 0;

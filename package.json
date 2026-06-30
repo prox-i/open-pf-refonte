@@ -19,7 +19,8 @@
     "import:openpf:compare": "tsx scripts/import-openpf/compare-members.ts",
     "import:openpf:dry-run": "tsx scripts/import-openpf/dry-run.ts",
     "import:openpf:apply": "tsx --env-file .env.local scripts/import-openpf/apply-enrichment.ts",
-    "migrate:article-images": "tsx --env-file .env.local scripts/migrate-article-images.ts"
+    "migrate:article-images": "tsx --env-file .env.local scripts/migrate-article-images.ts",
+    "fix:content-prod": "tsx scripts/fix-content-prod.ts"
   },
   "dependencies": {
     "@auth/core": "^0.34.3",

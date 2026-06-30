@@ -126,6 +126,29 @@ export function AdhesionForm({ onSuccess, onClose }: AdhesionFormProps) {
     setServerError((prev) => prev ?? 'Certains champs sont à corriger avant de continuer.')
   }
 
+  // MOB-023 : sur les champs simples, Entrée passe au champ suivant (et déclenche
+  // l'étape suivante sur le dernier champ) au lieu de paraître inerte. Le textarea
+  // n'est pas intercepté : Entrée y insère bien un saut de ligne.
+  function handleFormKeyDown(e: React.KeyboardEvent<HTMLFormElement>) {
+    if (e.key !== 'Enter') return
+    const target = e.target
+    if (!(target instanceof HTMLInputElement)) return
+    if (target.type === 'submit' || target.type === 'button') return
+    e.preventDefault()
+    const focusables = Array.from(
+      e.currentTarget.querySelectorAll<HTMLElement>(
+        'input:not([type=hidden]):not([disabled]), select, textarea',
+      ),
+    )
+    const index = focusables.indexOf(target)
+    const next = index >= 0 ? focusables[index + 1] : undefined
+    if (next) {
+      next.focus()
+    } else {
+      void handleNext()
+    }
+  }
+
   async function handleSubmit(data: AdhesionData) {
     setIsSubmitting(true)
     setServerError(null)
@@ -194,7 +217,11 @@ export function AdhesionForm({ onSuccess, onClose }: AdhesionFormProps) {
     <div className="adhesion-shell">
       <Stepper steps={ADHESION_STEPS} currentStep={step} />
 
-      <form onSubmit={form.handleSubmit(handleSubmit, handleInvalid)} noValidate>
+      <form
+        onSubmit={form.handleSubmit(handleSubmit, handleInvalid)}
+        onKeyDown={handleFormKeyDown}
+        noValidate
+      >
         {step === 1 && <StepEntreprise form={form} />}
         {step === 2 && <StepContacts form={form} />}
         {step === 3 && <StepActivites form={form} />}

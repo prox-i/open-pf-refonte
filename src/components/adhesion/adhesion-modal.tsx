@@ -21,6 +21,39 @@ export function AdhesionModal({ isOpen, onClose }: AdhesionModalProps) {
     }
   }, [isOpen])
 
+  // MOB-027 : verrouiller le scroll du body tant que la modale est ouverte
+  // (la balise <dialog> native laisse défiler l'arrière-plan sur iOS).
+  useEffect(() => {
+    if (!isOpen) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = previous
+    }
+  }, [isOpen])
+
+  // MOB-022 : recentrer le champ actif quand le clavier mobile s'ouvre, afin
+  // qu'il ne soit pas masqué (la modale est à hauteur fixe).
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog || !isOpen) return
+    function handleFocusIn(event: FocusEvent) {
+      const target = event.target
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement
+      ) {
+        // Laisse le clavier s'afficher avant de recentrer.
+        window.setTimeout(() => {
+          target.scrollIntoView({ block: 'center', behavior: 'smooth' })
+        }, 150)
+      }
+    }
+    dialog.addEventListener('focusin', handleFocusIn)
+    return () => dialog.removeEventListener('focusin', handleFocusIn)
+  }, [isOpen])
+
   return (
     <dialog
       ref={dialogRef}

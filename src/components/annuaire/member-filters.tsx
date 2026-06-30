@@ -24,6 +24,7 @@ export function MemberFilters({ domains, activeId, q }: MemberFiltersProps) {
       <div className="filters" role="group" aria-label="Filtrer par domaine d'activité">
         <Link
           href={allHref}
+          scroll={false}
           className={`filter-chip light${!activeId ? ' active' : ''}`}
           {...(!activeId ? { 'aria-current': 'page' as const } : {})}
         >
@@ -38,6 +39,7 @@ export function MemberFilters({ domains, activeId, q }: MemberFiltersProps) {
             <Link
               key={d.id}
               href={`/adherents?${params.toString()}`}
+              scroll={false}
               className={`filter-chip light${isActive ? ' active' : ''}`}
               {...(isActive ? { 'aria-current': 'page' as const } : {})}
             >

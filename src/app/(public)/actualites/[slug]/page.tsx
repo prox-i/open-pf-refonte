@@ -68,7 +68,7 @@ export default async function ArticlePage({ params }: Props) {
             <nav className="breadcrumb" aria-label="Fil d'Ariane">
               <Link href="/">Accueil</Link> ›{' '}
               <Link href="/actualites">Actualités</Link> ›{' '}
-              <span>{article.categoryLabel ?? 'Article'}</span>
+              <span aria-current="page">{article.title}</span>
             </nav>
             {article.categoryLabel && (
               <span className="tag" style={{ marginTop: '16px', display: 'inline-block' }}>

@@ -61,6 +61,7 @@
     "@types/node": "^22.15.21",
     "@types/react": "^19.1.4",
     "@types/react-dom": "^19.1.2",
+    "@types/turndown": "^5.0.6",
     "@typescript-eslint/eslint-plugin": "^8.59.4",
     "@typescript-eslint/parser": "^8.59.4",
     "@vitejs/plugin-react": "^6.0.2",
@@ -74,6 +75,7 @@
     "prettier-plugin-tailwindcss": "^0.8.0",
     "sharp": "^0.34.5",
     "tsx": "^4.22.3",
+    "turndown": "^7.2.4",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.59.4",
     "vitest": "^4.1.6"

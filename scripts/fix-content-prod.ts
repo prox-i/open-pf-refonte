@@ -1,47 +1,60 @@
 /**
  * Corrections de contenu en base de prod (recette 29/06) :
  *   - REC-008 : renomme le slug WordPress « 3528-2 » → « voeux-2025 ».
- *   - BO-008  : nettoie les balises HTML héritées dans excerpt/content (stripHtml).
+ *   - BO-008  : convertit le HTML hérité de WordPress en **Markdown propre**
+ *               (formatage préservé — liens, gras, listes — et rendu ensuite via
+ *               renderMarkdown). On ne SUPPRIME pas le HTML, on le convertit.
  *   - REC-012 : harmonise la casse « de Reviere » → « De Reviere ».
  *   - REC-013 : corrige des fautes connues des articles migrés.
  *
  * NON-DESTRUCTIF : dry-run par défaut (montre les changements, n'écrit rien).
  * Passer `--apply` pour exécuter réellement.
  *
- * Lancer (dans TON terminal, la clé reste chez toi) :
- *   DATABASE_URL="postgresql://…NEON…" pnpm tsx scripts/fix-content-prod.ts          # dry-run
- *   DATABASE_URL="postgresql://…NEON…" pnpm tsx scripts/fix-content-prod.ts --apply  # exécution
+ * Lit DATABASE_URL depuis .env.local (via `pnpm fix:content-prod`).
+ *   pnpm fix:content-prod          # dry-run
+ *   pnpm fix:content-prod --apply  # exécution
  */
 
 /* eslint-disable no-console */
 import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
 import { eq } from 'drizzle-orm'
+import TurndownService from 'turndown'
 import * as schema from '../src/lib/db/schema'
-import { stripHtml } from '../src/lib/utils'
 
 const { news } = schema
 const APPLY = process.argv.includes('--apply')
 
-// REC-013 : fautes connues (récurrentes dans les articles migrés). Ajouter ici
-// au besoin — remplacements littéraux, sûrs.
+const turndown = new TurndownService({
+  headingStyle: 'atx',
+  bulletListMarker: '-',
+  codeBlockStyle: 'fenced',
+  emDelimiter: '*',
+})
+
+const HTML_RE = /<\/?[a-z][^>]*>/i
+
+// REC-013 : fautes connues (récurrentes dans les articles migrés).
 const TYPO_FIXES: Array<[RegExp, string]> = [
   [/tiens à remercier/g, 'tient à remercier'],
   [/Le CA 2023[–-]2025,/g, 'Le CA 2023-2025'],
 ]
 
-function fixCasing(text: string): string {
-  // REC-012 : « de Reviere » (d minuscule) → « De Reviere ».
-  return text.replace(/\bde Reviere\b/g, 'De Reviere')
+function fixText(text: string): string {
+  let out = text.replace(/\bde Reviere\b/g, 'De Reviere') // REC-012
+  for (const [re, to] of TYPO_FIXES) out = out.replace(re, to) // REC-013
+  return out
 }
 
-function applyTypos(text: string): string {
-  return TYPO_FIXES.reduce((acc, [re, to]) => acc.replace(re, to), text)
+/** Convertit en Markdown si du HTML est détecté, puis applique les corrections de texte. */
+function clean(text: string): string {
+  const base = HTML_RE.test(text) ? turndown.turndown(text) : text
+  return fixText(base).trim()
 }
 
 function getDb() {
   const url = process.env['DATABASE_URL']
-  if (!url) throw new Error('DATABASE_URL manquant')
+  if (!url) throw new Error('DATABASE_URL manquant (.env.local)')
   return drizzle(neon(url), { schema })
 }
 
@@ -57,19 +70,17 @@ async function main() {
   for (const row of rows) {
     const updates: Partial<{ slug: string; title: string; excerpt: string; content: string }> = {}
 
-    // REC-008 : slug
-    if (row.slug === '3528-2') updates.slug = 'voeux-2025'
+    if (row.slug === '3528-2') updates.slug = 'voeux-2025' // REC-008
 
-    // BO-008 + REC-012 + REC-013 sur title/excerpt/content
-    const newTitle = fixCasing(applyTypos(row.title))
+    const newTitle = fixText(row.title)
     if (newTitle !== row.title) updates.title = newTitle
 
     if (row.excerpt) {
-      const next = fixCasing(applyTypos(stripHtml(row.excerpt)))
+      const next = clean(row.excerpt)
       if (next !== row.excerpt) updates.excerpt = next
     }
     if (row.content) {
-      const next = fixCasing(applyTypos(stripHtml(row.content)))
+      const next = clean(row.content)
       if (next !== row.content) updates.content = next
     }
 

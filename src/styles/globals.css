@@ -251,8 +251,10 @@ body {
   gap: 36px;
 }
 .footer-grid p,
-.footer-grid a {
+.footer-grid a,
+.footer-grid li {
   color: #cdd6f6;
+  /* REC-029 : l'adresse (texte de <li> nu) doit avoir la même taille que les liens. */
   font-size: 14px;
   text-decoration: none;
 }
@@ -287,6 +289,48 @@ body {
   text-decoration: none;
 }
 .footer-bottom a:hover {
+  color: white;
+}
+/* Carte de localisation page contact (REC-022) */
+.contact-map {
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-soft);
+  aspect-ratio: 16 / 7;
+}
+.contact-map iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+@media (max-width: 640px) {
+  .contact-map {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+/* Réseaux sociaux footer (REC-025) */
+.footer-social {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  list-style: none;
+  padding: 0;
+}
+.footer-social a {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cdd6f6;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.footer-social a:hover {
+  background: var(--open-magenta);
   color: white;
 }
 

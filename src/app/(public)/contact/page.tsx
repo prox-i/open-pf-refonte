@@ -148,6 +148,33 @@ export default async function ContactPage() {
         </div>
       </section>
 
+      {/* Carte de localisation du siège (REC-022). OpenStreetMap : sans cookie ni
+          clé d'API, donc aucun bandeau de consentement requis. */}
+      <section className="section section-tight" aria-labelledby="contact-map-title">
+        <div className="container">
+          <h2 id="contact-map-title" style={{ marginBottom: '20px' }}>
+            Nous trouver
+          </h2>
+          <div className="contact-map">
+            <iframe
+              title="Carte de localisation du siège d'OPEN PF à Papeete"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=-149.5790%2C-17.5450%2C-149.5580%2C-17.5250&layer=mapnik&marker=-17.5350%2C-149.5685"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
+          <p style={{ marginTop: '12px', fontSize: '14px' }}>
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=Immeuble+ATEIVI+Rue+Mgr+Tepano+Jaussen+Papeete"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ouvrir l&apos;itinéraire dans Google Maps →
+            </a>
+          </p>
+        </div>
+      </section>
+
       <CtaBand />
     </>
   )

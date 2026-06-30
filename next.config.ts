@@ -16,6 +16,8 @@ const CSP = [
   // worker-src allows Next.js service worker in production builds
   "worker-src 'self' blob:",
   "connect-src 'self'",
+  // Carte OpenStreetMap intégrée sur /contact (REC-022).
+  'frame-src https://www.openstreetmap.org',
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

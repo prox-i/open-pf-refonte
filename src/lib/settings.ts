@@ -26,7 +26,7 @@ export interface SiteSettings {
 }
 
 /** Valeurs d'origine, identiques à ce qui était codé en dur sur /contact. */
-const DEFAULTS = {
+export const SITE_SETTINGS_DEFAULTS = {
   publicEmail: 'contact@open.pf',
   publicAddress:
     'Immeuble ATEIVI, 3ème étage\nRue Mgr Tepano Jaussen, face SEFI\nBP 972 – 98713 Papeete, Tahiti\nPolynésie française',
@@ -51,10 +51,10 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
 
   return {
     contactRecipientEmail: row?.contactRecipientEmail || env.ADMIN_NOTIFICATION_EMAIL,
-    publicEmail: row?.publicEmail || DEFAULTS.publicEmail,
-    publicAddress: row?.publicAddress || DEFAULTS.publicAddress,
-    publicHours: row?.publicHours || DEFAULTS.publicHours,
-    facebookUrl: row?.facebookUrl || DEFAULTS.facebookUrl,
-    linkedinUrl: row?.linkedinUrl || DEFAULTS.linkedinUrl,
+    publicEmail: row?.publicEmail || SITE_SETTINGS_DEFAULTS.publicEmail,
+    publicAddress: row?.publicAddress || SITE_SETTINGS_DEFAULTS.publicAddress,
+    publicHours: row?.publicHours || SITE_SETTINGS_DEFAULTS.publicHours,
+    facebookUrl: row?.facebookUrl || SITE_SETTINGS_DEFAULTS.facebookUrl,
+    linkedinUrl: row?.linkedinUrl || SITE_SETTINGS_DEFAULTS.linkedinUrl,
   }
 })

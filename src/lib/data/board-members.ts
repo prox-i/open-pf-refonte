@@ -37,7 +37,7 @@ export const BOARD_MEMBERS: BoardMember[] = [
   {
     name: 'Anthony Ginter',
     openRole: 'Co-Président',
-    professionalRole: 'Dirigeant de ORACLIAI',
+    professionalRole: "Dirigeant d'Oraclia",
   },
   {
     name: 'Cédric Chan',

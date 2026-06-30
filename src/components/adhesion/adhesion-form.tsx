@@ -18,16 +18,24 @@ import { StepContacts } from './step-contacts'
 import { StepActivites } from './step-activites'
 import { StepCertifications } from './step-certifications'
 import { StepRecap } from './step-recap'
+import { ADHESION_STEPS } from '@/lib/data/adhesion-steps'
 
 const DRAFT_KEY = 'adhesion-draft'
 
-const STEPS = [
-  { label: 'Entreprise', description: 'Identité' },
-  { label: 'Contacts', description: 'Interlocuteurs' },
-  { label: 'Activités', description: 'Domaines' },
-  { label: 'Certifications', description: 'Labels' },
-  { label: 'Récapitulatif', description: 'Envoi' },
-]
+/**
+ * Renvoie le chemin (ex. `name`, `contacts.0.email`) du premier champ en erreur,
+ * pour pouvoir le focaliser / faire défiler la vue jusqu'à lui (REC-038).
+ */
+function firstErrorPath(errors: Record<string, unknown>, prefix = ''): string | undefined {
+  for (const [key, value] of Object.entries(errors)) {
+    if (!value || typeof value !== 'object') continue
+    const path = prefix ? `${prefix}.${key}` : key
+    if ('message' in value && 'type' in value) return path // FieldError feuille
+    const nested = firstErrorPath(value as Record<string, unknown>, path)
+    if (nested) return nested
+  }
+  return undefined
+}
 
 interface AdhesionFormProps {
   onSuccess?: (slug: string) => void
@@ -103,7 +111,19 @@ export function AdhesionForm({ onSuccess, onClose }: AdhesionFormProps) {
       valid = true // certifications are optional
     }
 
-    if (valid) setStep((s) => s + 1)
+    if (valid) {
+      setStep((s) => s + 1)
+      return
+    }
+
+    // REC-038 : retour visuel explicite quand l'étape est invalide — sans cela,
+    // « Suivant » paraît ne rien faire. On focalise + défile vers le 1er champ en
+    // erreur et on affiche un message global (sauf si un message a déjà été posé).
+    const path = firstErrorPath(form.formState.errors as Record<string, unknown>)
+    if (path) {
+      form.setFocus(path as keyof AdhesionData, { shouldSelect: true })
+    }
+    setServerError((prev) => prev ?? 'Certains champs sont à corriger avant de continuer.')
   }
 
   async function handleSubmit(data: AdhesionData) {
@@ -172,7 +192,7 @@ export function AdhesionForm({ onSuccess, onClose }: AdhesionFormProps) {
 
   return (
     <div className="adhesion-shell">
-      <Stepper steps={STEPS} currentStep={step} />
+      <Stepper steps={ADHESION_STEPS} currentStep={step} />
 
       <form onSubmit={form.handleSubmit(handleSubmit, handleInvalid)} noValidate>
         {step === 1 && <StepEntreprise form={form} />}

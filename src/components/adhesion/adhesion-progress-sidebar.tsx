@@ -1,13 +1,6 @@
 import Link from 'next/link'
 import { ArrowIcon } from '@/components/public/arrow-icon'
-
-const STEPS = [
-  { label: 'Entreprise', description: 'Identité & légal' },
-  { label: 'Contacts', description: 'Interlocuteurs' },
-  { label: 'Activités', description: 'Domaines & secteurs' },
-  { label: 'Certifications', description: 'Labels & engagements' },
-  { label: 'Récapitulatif', description: 'Vérification & envoi' },
-]
+import { ADHESION_STEPS } from '@/lib/data/adhesion-steps'
 
 export function AdhesionProgressSidebar() {
   return (
@@ -15,7 +8,7 @@ export function AdhesionProgressSidebar() {
       <div className="adhesion-progress-card">
         <p className="adhesion-progress-card-title">Étapes du formulaire</p>
         <ol className="adhesion-step-list">
-          {STEPS.map((step, i) => (
+          {ADHESION_STEPS.map((step, i) => (
             <li key={step.label} className="adhesion-step-item">
               <span className="adhesion-step-badge" aria-hidden="true">
                 {i + 1}

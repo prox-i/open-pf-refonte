@@ -18,7 +18,7 @@ export function ContactForm() {
     formState: { errors, isSubmitting },
   } = useForm<ContactInput>({
     resolver: zodResolver(contactSchema),
-    defaultValues: { name: '', email: '', message: '', company: '' },
+    defaultValues: { name: '', email: '', message: '', company: '', rgpdConsent: false },
   })
 
   async function onSubmit(data: ContactInput) {
@@ -163,6 +163,31 @@ export function ContactForm() {
         {errors.message && (
           <p className="field-error" id="contact-message-error">
             {errors.message.message}
+          </p>
+        )}
+      </div>
+
+      <div className="form-field" style={{ marginTop: '20px' }}>
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            aria-required="true"
+            aria-invalid={errors.rgpdConsent ? 'true' : undefined}
+            aria-describedby={errors.rgpdConsent ? 'contact-rgpd-error' : undefined}
+            {...register('rgpdConsent')}
+          />
+          <span>
+            J&apos;accepte que les informations transmises soient utilisées par OPEN PF pour
+            traiter ma demande, conformément à notre{' '}
+            <a href="/confidentialite" target="_blank" rel="noopener noreferrer">
+              politique de confidentialité
+            </a>
+            . <span aria-hidden="true">*</span>
+          </span>
+        </label>
+        {errors.rgpdConsent && (
+          <p id="contact-rgpd-error" className="field-error" role="alert">
+            {errors.rgpdConsent.message}
           </p>
         )}
       </div>

@@ -6,6 +6,7 @@ const valid = {
   email: 'jean@example.pf',
   subject: 'Partenariat' as const,
   message: 'Bonjour, je souhaite discuter d’un partenariat avec OPEN.',
+  rgpdConsent: true,
   company: '',
 }
 
@@ -40,6 +41,10 @@ describe('contactSchema', () => {
 
   it('rejects a filled honeypot (bot signal)', () => {
     expect(contactSchema.safeParse({ ...valid, company: 'Acme Bots Inc' }).success).toBe(false)
+  })
+
+  it('rejects a missing RGPD consent', () => {
+    expect(contactSchema.safeParse({ ...valid, rgpdConsent: false }).success).toBe(false)
   })
 
   it('trims surrounding whitespace on name and email', () => {

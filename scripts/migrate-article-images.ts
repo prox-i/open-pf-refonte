@@ -62,6 +62,7 @@ async function main() {
 
   let touchedRows = 0
   let migratedImages = 0
+  let failures = 0
   const cache = new Map<string, string>() // srcUrl -> nouvelle URL Blob (dédup)
 
   for (const row of rows) {
@@ -80,13 +81,22 @@ async function main() {
         if (!dest) {
           console.log(`  [${row.slug}] ${field} → ${src}`)
           if (APPLY) {
-            dest = await downloadAndUpload(src)
-            console.log(`      ↳ ${dest}`)
+            try {
+              dest = await downloadAndUpload(src)
+              console.log(`      ↳ ${dest}`)
+              migratedImages++
+            } catch (e) {
+              // Fichier introuvable sur open.pf (déjà supprimé, etc.) : on le saute
+              // sans interrompre la migration, et on garde l'URL d'origine.
+              console.warn(`      ⚠️  ignoré (${(e as Error).message})`)
+              dest = src
+              failures++
+            }
           } else {
             dest = src // dry-run : on ne touche pas
+            migratedImages++
           }
           cache.set(src, dest)
-          migratedImages++
         }
         next = next.split(src).join(dest)
       }
@@ -102,7 +112,8 @@ async function main() {
   }
 
   console.log(
-    `\n${APPLY ? 'Migré' : 'À migrer'} : ${migratedImages} image(s) dans ${touchedRows} article(s).`,
+    `\n${APPLY ? 'Migré' : 'À migrer'} : ${migratedImages} fichier(s) dans ${touchedRows} article(s).` +
+      (failures ? ` — ${failures} ignoré(s) (introuvables sur open.pf).` : ''),
   )
   if (!APPLY && migratedImages > 0) {
     console.log('Relancer avec --apply pour exécuter la migration.\n')

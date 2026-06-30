@@ -158,7 +158,7 @@ export default async function ContactPage() {
           <div className="contact-map">
             <iframe
               title="Carte de localisation du siège d'OPEN PF à Papeete"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=-149.5790%2C-17.5450%2C-149.5580%2C-17.5250&layer=mapnik&marker=-17.5350%2C-149.5685"
+              src="https://www.openstreetmap.org/export/embed.html?bbox=-149.5762%2C-17.5484%2C-149.5562%2C-17.5324&layer=mapnik&marker=-17.5403928%2C-149.5662001"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />

@@ -176,3 +176,29 @@ D'après `architecture.md §11`, **ne pas anticiper sur la phase suivante** :
 | **P9** | Recette + doc | Prêt prod |
 
 À chaque fin de phase : commit propre + résumé + attente validation avant de continuer.
+
+---
+
+## 🔧 12. Recette du 29/06/2026 (branche fix/recette-29062026)
+
+Traitement des 51 anomalies « À faire » de `Recette_Site_OPEN_29062026.xlsx`.
+Détail complet : [`docs/recette-29062026.md`](docs/recette-29062026.md).
+
+Décisions structurantes prises pendant cette recette :
+
+- **Carte /contact** : OpenStreetMap (sans cookie ni clé) plutôt que Google Maps → pas de
+  bandeau de consentement. `frame-src https://www.openstreetmap.org` ajouté à la CSP.
+- **noindex préversion** : `robots.ts` + métadonnées `layout` désindexent toute préversion
+  Vercel (`VERCEL_ENV !== 'production'`) pour éviter le contenu dupliqué avant la bascule.
+- **Redirections 301** : table WordPress→nouvelles URL dans `next.config.ts` (source :
+  `page-sitemap.xml` de open.pf).
+- **Session admin** : ramenée à 8 h ; rate-limit anti-brute-force en mémoire (best-effort,
+  prévoir un store partagé type Upstash pour la prod).
+- **Contenu actualités** : nettoyage HTML (`stripHtml`) à l'enregistrement ; le slug devient
+  éditable. **Pas d'éditeur riche** (BO-014) sans validation : dépendance majeure.
+- **Newsletter (REC-024)** : écartée (OPEN n'en diffuse pas).
+- **Cookies (REC-034 / MOB-014)** : sans objet tant qu'aucun outil d'audience n'est ajouté.
+
+Actions hors-code restant avant prod : migration des images d'articles
+(`pnpm migrate:article-images`), corrections de contenu en base via le BO, redirection
+www↔domaine nu côté domaine Vercel, mesure PageSpeed sur le déploiement.

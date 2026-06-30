@@ -104,6 +104,10 @@ export function NewsForm({ id, initialData }: NewsFormProps) {
         <div className="form-field">
           <label htmlFor="content">Contenu</label>
           <textarea id="content" rows={10} {...form.register('content')} />
+          <p style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
+            Markdown supporté : <code>**gras**</code>, <code>[lien](https://…)</code>, listes avec{' '}
+            <code>- </code>, sous-titres avec <code>## </code>.
+          </p>
         </div>
 
         <div className="form-grid">

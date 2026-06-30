@@ -6,6 +6,7 @@ import { CtaBand } from '@/components/public/cta-band'
 import { getNewsBySlug } from '@/lib/db/queries/news'
 import { buildBreadcrumbJsonLd, buildArticleJsonLd } from '@/lib/seo'
 import { formatDate } from '@/lib/utils'
+import { renderMarkdown } from '@/lib/markdown'
 
 export const dynamic = 'force-dynamic'
 
@@ -108,7 +109,7 @@ export default async function ArticlePage({ params }: Props) {
           {article.content && (
             <div
               className="article-body"
-              dangerouslySetInnerHTML={{ __html: article.content }}
+              dangerouslySetInnerHTML={{ __html: renderMarkdown(article.content) }}
             />
           )}
 

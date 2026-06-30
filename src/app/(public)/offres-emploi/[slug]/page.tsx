@@ -5,6 +5,7 @@ import { CtaBand } from '@/components/public/cta-band'
 import { getJobBySlug } from '@/lib/db/queries/jobs'
 import { buildBreadcrumbJsonLd, buildJobPostingJsonLd } from '@/lib/seo'
 import { formatDate } from '@/lib/utils'
+import { renderMarkdown } from '@/lib/markdown'
 
 export const dynamic = 'force-dynamic'
 
@@ -121,9 +122,11 @@ export default async function JobDetailPage({ params }: Props) {
           </ul>
 
           {job.description ? (
-            <div className="article-body" style={{ whiteSpace: 'pre-wrap', marginTop: '32px' }}>
-              {job.description}
-            </div>
+            <div
+              className="article-body"
+              style={{ marginTop: '32px' }}
+              dangerouslySetInnerHTML={{ __html: renderMarkdown(job.description) }}
+            />
           ) : (
             <p style={{ color: 'var(--muted)', fontStyle: 'italic', marginTop: '32px' }}>
               Description non disponible. Contactez l&apos;entreprise pour plus d&apos;informations.

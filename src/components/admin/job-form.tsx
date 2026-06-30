@@ -63,6 +63,10 @@ export function JobForm({ id, initialData }: JobFormProps) {
         <div className="form-field">
           <label htmlFor="description">Description</label>
           <textarea id="description" rows={8} {...form.register('description')} />
+          <p style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
+            Markdown supporté : <code>**gras**</code>, <code>[lien](https://…)</code>, listes avec{' '}
+            <code>- </code>.
+          </p>
         </div>
         <div className="form-grid">
           <div className="form-field">

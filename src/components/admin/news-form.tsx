@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
+import { upload } from '@vercel/blob/client'
 import { upsertNews } from '@/lib/actions/admin/content'
 
 const schema = z.object({
@@ -51,12 +52,12 @@ export function NewsForm({ id, initialData }: NewsFormProps) {
     setUploading(true)
     setUploadError(null)
     try {
-      const fd = new FormData()
-      fd.append('file', file)
-      const res = await fetch('/api/upload/news-image', { method: 'POST', body: fd })
-      const json = await res.json() as { url?: string; error?: string }
-      if (!res.ok || !json.url) throw new Error(json.error ?? 'Erreur upload')
-      form.setValue('imageUrl', json.url, { shouldValidate: true })
+      // Upload direct navigateur → Vercel Blob (pas de limite de body serverless).
+      const blob = await upload(file.name, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload/news-image',
+      })
+      form.setValue('imageUrl', blob.url, { shouldValidate: true })
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Erreur upload')
     } finally {

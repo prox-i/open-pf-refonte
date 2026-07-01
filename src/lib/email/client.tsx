@@ -12,7 +12,21 @@ async function sendViaMandrill(message: {
   replyTo?: string
   replyToName?: string
 }): Promise<void> {
-  const recipients = Array.isArray(message.to) ? message.to : [message.to]
+  const all = Array.isArray(message.to) ? message.to : [message.to]
+
+  const restrictDomain = env.EMAIL_RESTRICT_DOMAIN
+  const recipients = restrictDomain
+    ? all.filter((email) => {
+        const allowed = email.endsWith(`@${restrictDomain}`)
+        if (!allowed) console.warn(`[email] bloqué (domaine non autorisé) : ${email}`)
+        return allowed
+      })
+    : all
+
+  if (recipients.length === 0) {
+    console.warn('[email] aucun destinataire autorisé — envoi annulé')
+    return
+  }
   const res = await fetch('https://mandrillapp.com/api/1.0/messages/send.json', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

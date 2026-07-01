@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Image from 'next/image'
+import { upload } from '@vercel/blob/client'
 import { ArrowIcon } from '@/components/public/arrow-icon'
 import { ACTIVITY_DOMAINS, CERTIFICATIONS } from '@/lib/data/referentials'
 import { memberProfileSchema, type MemberProfileData } from '@/lib/validations/member-profile'
@@ -67,26 +68,21 @@ export function ProfileForm({ token, initialData }: ProfileFormProps) {
     setLogoError(null)
     setLogoUploading(true)
 
-    const fd = new FormData()
-    fd.append('file', file)
-
-    const res = await fetch('/api/upload/logo', {
-      method: 'POST',
-      headers: { 'x-magic-token': token },
-      body: fd,
-    })
-
-    setLogoUploading(false)
-
-    if (!res.ok) {
-      const json = (await res.json()) as { error?: string }
-      setLogoError(json.error ?? 'Erreur lors du téléversement')
-      return
+    try {
+      // Upload direct navigateur → Vercel Blob ; jeton magique via clientPayload.
+      const blob = await upload(`logos/${file.name}`, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload/logo',
+        clientPayload: token,
+      })
+      setLogoPreview(blob.url)
+      form.setValue('logoUrl', blob.url, { shouldDirty: true })
+    } catch (err) {
+      setLogoError(err instanceof Error ? err.message : 'Erreur lors du téléversement')
+    } finally {
+      setLogoUploading(false)
+      e.target.value = ''
     }
-
-    const json = (await res.json()) as { url: string }
-    setLogoPreview(json.url)
-    form.setValue('logoUrl', json.url, { shouldDirty: true })
   }
 
   async function handleSubmit(data: MemberProfileData) {

@@ -30,6 +30,9 @@ const envSchema = z.object({
   // Admin
   ADMIN_NOTIFICATION_EMAIL: z.string().email(),
 
+  // Guard: si défini, seules les adresses @<domaine> peuvent recevoir des emails
+  EMAIL_RESTRICT_DOMAIN: z.string().optional(),
+
   // Node env
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
 })

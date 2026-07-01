@@ -1,46 +1,41 @@
-import { put } from '@vercel/blob'
+import { handleUpload, type HandleUploadBody } from '@vercel/blob/client'
 import { type NextRequest, NextResponse } from 'next/server'
-import sharp from 'sharp'
 import { auth } from '@/auth'
-import { env } from '@/lib/env'
 
+/**
+ * Upload d'image d'actualité — flux CLIENT direct vers Vercel Blob.
+ *
+ * Le fichier va du navigateur directement au Blob (via un jeton signé émis ici),
+ * ce qui contourne la limite de taille du body des fonctions serverless (~4,5 Mo)
+ * qui provoquait « Unexpected end of JSON input ». Plus de traitement `sharp`
+ * côté serveur : next/image optimise (webp/avif) à la livraison.
+ */
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
-const MAX_SIZE_BYTES = 5 * 1024 * 1024 // 5 MB
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const session = await auth()
-  if (!session?.user) {
-    return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
-  }
-
-  const formData = await req.formData()
-  const file = formData.get('file')
-
-  if (!(file instanceof File)) {
-    return NextResponse.json({ error: 'Aucun fichier reçu' }, { status: 400 })
-  }
-  if (!ALLOWED_TYPES.includes(file.type)) {
+  const body = (await req.json()) as HandleUploadBody
+  try {
+    const jsonResponse = await handleUpload({
+      body,
+      request: req,
+      onBeforeGenerateToken: async () => {
+        const session = await auth()
+        if (!session?.user) throw new Error('Non autorisé')
+        return {
+          allowedContentTypes: ALLOWED_TYPES,
+          maximumSizeInBytes: 8 * 1024 * 1024,
+          addRandomSuffix: true,
+        }
+      },
+      onUploadCompleted: async () => {
+        // L'URL est renvoyée au client par le flux upload() ; rien à faire ici.
+      },
+    })
+    return NextResponse.json(jsonResponse)
+  } catch (error) {
     return NextResponse.json(
-      { error: 'Format non supporté (JPEG, PNG, WebP)' },
+      { error: error instanceof Error ? error.message : 'Upload échoué' },
       { status: 400 },
     )
   }
-  if (file.size > MAX_SIZE_BYTES) {
-    return NextResponse.json({ error: 'Fichier trop volumineux (max 5 Mo)' }, { status: 400 })
-  }
-
-  const bytes = Buffer.from(await file.arrayBuffer())
-  const webpBuffer = await sharp(bytes)
-    .resize(1600, 900, { fit: 'inside', withoutEnlargement: true })
-    .webp({ quality: 85 })
-    .toBuffer()
-
-  const filename = `news-images/admin-${Date.now()}.webp`
-  const blob = await put(filename, webpBuffer, {
-    access: 'public',
-    contentType: 'image/webp',
-    token: env.BLOB_READ_WRITE_TOKEN,
-  })
-
-  return NextResponse.json({ url: blob.url })
 }

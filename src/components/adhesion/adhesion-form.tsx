@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
@@ -88,6 +88,19 @@ export function AdhesionForm({ onSuccess, onClose }: AdhesionFormProps) {
     })
     return () => sub.unsubscribe()
   }, [form])
+
+  // À chaque changement d'étape, revenir en haut du formulaire. Sans cela, la
+  // vue restait en bas de page (l'étape suivante, plus courte, laissait le scroll
+  // sur le footer) → impression d'être « envoyé au footer ».
+  const shellRef = useRef<HTMLDivElement>(null)
+  const mountedRef = useRef(false)
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true
+      return
+    }
+    shellRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [step])
 
   async function handleNext() {
     setServerError(null)
@@ -214,7 +227,7 @@ export function AdhesionForm({ onSuccess, onClose }: AdhesionFormProps) {
   }
 
   return (
-    <div className="adhesion-shell">
+    <div className="adhesion-shell" ref={shellRef}>
       <Stepper steps={ADHESION_STEPS} currentStep={step} />
 
       <form

@@ -202,3 +202,21 @@ Décisions structurantes prises pendant cette recette :
 Actions hors-code restant avant prod : migration des images d'articles
 (`pnpm migrate:article-images`), corrections de contenu en base via le BO, redirection
 www↔domaine nu côté domaine Vercel, mesure PageSpeed sur le déploiement.
+
+---
+
+## 📅 13. Agenda OPEN (home + back-office)
+
+Ajout d'une carte « Agenda OPEN » dans la section « Actualités de la filière » de la
+home : **2 actualités + 1 carte agenda** (au lieu de 3 actualités). Détail complet :
+[`docs/agenda-open.md`](docs/agenda-open.md).
+
+- **Modèle** : table `agenda_events` (migration `0005`). Pas de page publique agenda,
+  pas de dépendance calendrier.
+- **Expiration** : un événement disparaît le **lendemain** du jour où il a lieu, en
+  **heure de Tahiti (UTC−10)**. Logique pure et testée (`src/lib/agenda.ts`).
+- **Affichage home** : publié + `showOnHome` + à venir, tri date croissante ; liste
+  scrollable ; « Voir plus » uniquement si `detailUrl`.
+- **Back-office** : rubrique « Agenda » (liste + formulaire create/update/delete,
+  publier/dépublier, afficher sur la home).
+- **Prod** : appliquer la migration `0005` puis (optionnel) `pnpm seed:agenda`.

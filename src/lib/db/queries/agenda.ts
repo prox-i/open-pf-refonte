@@ -47,11 +47,16 @@ export async function getHomeAgendaEvents(): Promise<HomeAgendaEvent[]> {
   }
 }
 
-/** Tous les événements pour l'admin (récents d'abord). */
+/** Tous les événements pour l'admin (récents d'abord). Résilient avant migration. */
 export async function getAllAgendaEvents() {
-  const db = getDb()
-  return db
-    .select()
-    .from(agendaEvents)
-    .orderBy(desc(agendaEvents.eventDate), asc(agendaEvents.sortOrder))
+  try {
+    const db = getDb()
+    return await db
+      .select()
+      .from(agendaEvents)
+      .orderBy(desc(agendaEvents.eventDate), asc(agendaEvents.sortOrder))
+  } catch (e) {
+    console.error('[getAllAgendaEvents]', e)
+    return []
+  }
 }

@@ -20,7 +20,8 @@
     "import:openpf:dry-run": "tsx scripts/import-openpf/dry-run.ts",
     "import:openpf:apply": "tsx --env-file .env.local scripts/import-openpf/apply-enrichment.ts",
     "migrate:article-images": "tsx --env-file .env.local scripts/migrate-article-images.ts",
-    "fix:content-prod": "tsx --env-file .env.local scripts/fix-content-prod.ts"
+    "fix:content-prod": "tsx --env-file .env.local scripts/fix-content-prod.ts",
+    "seed:agenda": "tsx --env-file .env.local scripts/seed-agenda.ts"
   },
   "dependencies": {
     "@auth/core": "^0.34.3",

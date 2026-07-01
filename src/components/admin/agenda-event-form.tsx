@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { agendaEventSchema, type AgendaEventData } from '@/lib/validations/admin'
 import { deleteAgendaEvent, upsertAgendaEvent } from '@/lib/actions/admin/agenda'
+import { RichTextEditor } from './rich-text-editor'
 
 interface AgendaEventFormProps {
   id?: string
@@ -136,12 +137,11 @@ export function AgendaEventForm({ id, initialData }: AgendaEventFormProps) {
         </header>
 
         <div className="form-field">
-          <label htmlFor="content">Contenu de la page de détail (Markdown)</label>
-          <textarea id="content" rows={10} {...register('content')} />
-          <p style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
-            Markdown supporté : <code>**gras**</code>, <code>[lien](https://…)</code>, listes avec{' '}
-            <code>- </code>, sous-titres avec <code>## </code>.
-          </p>
+          <label>Contenu de la page de détail</label>
+          <RichTextEditor
+            value={form.watch('content') ?? ''}
+            onChange={(html) => form.setValue('content', html, { shouldDirty: true })}
+          />
           {errors.content && <p className="field-error">{errors.content.message}</p>}
         </div>
 

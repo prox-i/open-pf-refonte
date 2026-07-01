@@ -2591,6 +2591,83 @@ textarea {
   gap: 16px;
   margin-top: 18px;
 }
+/* Éditeur riche (WYSIWYG Tiptap) */
+.rte {
+  border: 1px solid #cfd6e4;
+  border-radius: 14px;
+  overflow: hidden;
+  background: white;
+}
+.rte-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 6px;
+  border-bottom: 1px solid var(--line);
+  background: var(--soft, #f7f9fc);
+}
+.rte-btn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--navy);
+  cursor: pointer;
+}
+.rte-btn:hover {
+  background: #fff;
+  border-color: var(--line);
+}
+.rte-btn.is-active {
+  background: var(--open-magenta);
+  color: #fff;
+}
+.rte-content {
+  padding: 4px 16px;
+  min-height: 200px;
+}
+.rte-content .ProseMirror {
+  min-height: 190px;
+  outline: none;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.rte-content .ProseMirror:focus {
+  outline: none;
+}
+.rte-content .ProseMirror > * + * {
+  margin-top: 0.75em;
+}
+.rte-content .ProseMirror h2 {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--navy);
+}
+.rte-content .ProseMirror h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--navy);
+}
+.rte-content .ProseMirror ul,
+.rte-content .ProseMirror ol {
+  padding-left: 1.4rem;
+}
+.rte-content .ProseMirror a {
+  color: var(--open-magenta);
+  text-decoration: underline;
+}
+.rte-content .ProseMirror p.is-editor-empty:first-child::before {
+  content: 'Rédigez le contenu de la page de détail…';
+  color: #9aa6b8;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
 /* Blocs de formulaire admin (sections numérotées) */
 .admin-form-block-head {
   border-bottom: 1px solid var(--line);

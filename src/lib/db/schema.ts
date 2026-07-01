@@ -1,5 +1,6 @@
 import {
   boolean,
+  date,
   integer,
   jsonb,
   pgEnum,
@@ -254,4 +255,26 @@ export const auditLog = pgTable('audit_log', {
   targetId: uuid('target_id'),
   data: jsonb('data'), // snapshot or diff
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+})
+
+/**
+ * Agenda OPEN — événements à venir affichés dans la carte agenda de la home.
+ * Pas de page détail obligatoire : `detailUrl` est optionnel. `eventDate` est une
+ * date calendaire (sans fuseau) ; l'expiration se calcule à la journée en heure
+ * de Tahiti (l'événement disparaît le lendemain du jour où il a lieu).
+ */
+export const agendaEvents = pgTable('agenda_events', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  title: varchar('title', { length: 200 }).notNull(),
+  description: text('description'),
+  eventDate: date('event_date').notNull(),
+  startTime: varchar('start_time', { length: 5 }), // "HH:MM" optionnel
+  location: varchar('location', { length: 200 }),
+  detailUrl: text('detail_url'),
+  isExternalUrl: boolean('is_external_url').notNull().default(false),
+  isPublished: boolean('is_published').notNull().default(false),
+  showOnHome: boolean('show_on_home').notNull().default(true),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })

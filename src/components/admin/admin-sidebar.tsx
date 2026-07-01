@@ -26,6 +26,7 @@ export function AdminSidebar({ userName, pendingCount }: AdminSidebarProps) {
     { href: '/admin/demandes', label: "Demandes d'adhésion", badge: pendingCount },
     { href: '/admin/adherents', label: 'Adhérents' },
     { href: '/admin/actualites', label: 'Actualités' },
+    { href: '/admin/agenda', label: 'Agenda' },
     { href: '/admin/offres-emploi', label: "Offres d'emploi" },
     { href: '/admin/relances', label: 'Relances' },
     { href: '/admin/contenu', label: 'Contenu du site' },

@@ -28,3 +28,23 @@ export const siteSettingsSchema = z.object({
 })
 
 export type SiteSettingsData = z.infer<typeof siteSettingsSchema>
+
+// Événement d'agenda (rubrique « Agenda » du back-office)
+export const agendaEventSchema = z.object({
+  title: z.string().trim().min(1, 'Titre requis').max(200, 'Titre trop long'),
+  description: z.string().max(500, '500 caractères max.').optional().or(z.literal('')),
+  eventDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date requise'),
+  startTime: z
+    .string()
+    .regex(/^\d{2}:\d{2}$/, 'Heure invalide (HH:MM)')
+    .optional()
+    .or(z.literal('')),
+  location: z.string().max(200).optional().or(z.literal('')),
+  detailUrl: z.string().url('URL invalide').optional().or(z.literal('')),
+  isExternalUrl: z.boolean(),
+  isPublished: z.boolean(),
+  showOnHome: z.boolean(),
+  sortOrder: z.number().int().min(0),
+})
+
+export type AgendaEventData = z.infer<typeof agendaEventSchema>

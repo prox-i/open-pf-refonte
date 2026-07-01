@@ -7,6 +7,8 @@ import { MemberShowcase } from '@/components/annuaire/member-showcase'
 import { getFeaturedMembers } from '@/lib/db/queries/members'
 import { getSiteStats } from '@/lib/db/queries/stats'
 import { getRecentNews } from '@/lib/db/queries/news'
+import { getHomeAgendaEvents } from '@/lib/db/queries/agenda'
+import { AgendaCard } from '@/components/public/agenda-card'
 import { getDailySeed } from '@/lib/random/seeded-shuffle'
 import { formatDate } from '@/lib/utils'
 
@@ -87,11 +89,12 @@ const MISSIONS = [
 ]
 
 export default async function HomePage() {
-  const [featuredMembers, { memberCount, employeeCount, domainCount }, recentNews] =
+  const [featuredMembers, { memberCount, employeeCount, domainCount }, recentNews, agendaEvents] =
     await Promise.all([
       getFeaturedMembers(12, { seed: `home:${getDailySeed()}` }),
       getSiteStats(),
-      getRecentNews(3),
+      getRecentNews(2),
+      getHomeAgendaEvents(),
     ])
 
   return (
@@ -218,7 +221,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {recentNews.length > 0 && (
+      {(recentNews.length > 0 || agendaEvents.length > 0) && (
         <section className="section section-tight bg-soft" aria-labelledby="news-home-title">
           <div className="container">
             <div className="section-head">
@@ -230,7 +233,7 @@ export default async function HomePage() {
                 Toutes les actualités <ArrowIcon />
               </Link>
             </div>
-            <div className="grid-3">
+            <div className="news-agenda-grid">
               {recentNews.map((article) => (
                 <Link
                   key={article.slug}
@@ -264,6 +267,7 @@ export default async function HomePage() {
                   </div>
                 </Link>
               ))}
+              <AgendaCard events={agendaEvents} />
             </div>
           </div>
         </section>

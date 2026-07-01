@@ -1048,6 +1048,169 @@ p {
   overflow: hidden;
   padding: 0;
 }
+
+/* ─── Grille Actualités + Agenda (home) ─────────────────────────────── */
+.news-agenda-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+/* Tablette : 2 colonnes d'actualités, agenda en pleine largeur dessous. */
+@media (max-width: 980px) and (min-width: 641px) {
+  .news-agenda-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .news-agenda-grid .agenda-card {
+    grid-column: 1 / -1;
+  }
+}
+/* Mobile : 1 colonne, actualités puis agenda. */
+@media (max-width: 640px) {
+  .news-agenda-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── Carte Agenda OPEN ─────────────────────────────────────────────── */
+.agenda-card {
+  display: flex;
+  flex-direction: column;
+  padding: 26px 24px 22px;
+  background: #fff;
+}
+.agenda-head {
+  margin-bottom: 16px;
+}
+.agenda-kicker {
+  margin: 0 0 8px;
+  color: var(--open-magenta);
+  font-size: 13px;
+  font-weight: 800;
+}
+.agenda-title {
+  margin: 0;
+  color: var(--navy);
+  font-size: clamp(26px, 2.4vw, 31px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+.agenda-subtitle {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.35;
+}
+.events-scroll {
+  flex: 1;
+  min-height: 0;
+  max-height: 360px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  margin: 0;
+  padding: 0 10px 0 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  scrollbar-width: thin;
+}
+.events-scroll::-webkit-scrollbar {
+  width: 7px;
+}
+.events-scroll::-webkit-scrollbar-track {
+  background: #f3f5f9;
+  border-radius: 999px;
+}
+.events-scroll::-webkit-scrollbar-thumb {
+  background: #d6dce7;
+  border-radius: 999px;
+}
+.events-scroll:focus-visible {
+  outline: 3px solid rgba(0, 87, 216, 0.3);
+  outline-offset: 2px;
+}
+.agenda-event {
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.agenda-event:last-child {
+  border-bottom: 0;
+}
+.agenda-event-date {
+  color: var(--open-magenta);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: 13px;
+  line-height: 1.05;
+  letter-spacing: 0.03em;
+}
+.agenda-event-date span {
+  display: block;
+  margin-top: 4px;
+  color: #9aa6b8;
+  font-size: 11px;
+  font-weight: 800;
+}
+.agenda-event-title {
+  margin: 0 0 6px;
+  color: var(--navy);
+  font-size: 17px;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.agenda-event-desc {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.agenda-event-more {
+  display: inline-flex;
+  margin-top: 9px;
+  color: var(--open-magenta);
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 13px;
+}
+.agenda-event-more:hover {
+  text-decoration: underline;
+}
+.agenda-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 24px 0;
+  color: var(--muted);
+  font-size: 14px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.agenda-foot {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+@media (max-width: 980px) {
+  .events-scroll {
+    max-height: 300px;
+  }
+}
+@media (max-width: 640px) {
+  .agenda-card {
+    padding: 22px 20px 22px;
+  }
+  .events-scroll {
+    max-height: 340px;
+  }
+  .agenda-event {
+    grid-template-columns: 66px 1fr;
+    gap: 14px;
+  }
+}
 .news-image {
   height: 170px;
   background: linear-gradient(135deg, #061c56, #e6007e);
@@ -2413,6 +2576,17 @@ textarea {
   gap: 16px;
   margin-top: 18px;
 }
+/* Bouton de suppression (back-office) */
+.btn-danger {
+  background: #d92d20;
+  color: #fff;
+  border-color: #d92d20;
+}
+.btn-danger:hover {
+  background: #b42318;
+  border-color: #b42318;
+}
+
 /* Grilles de cases à cocher (édition adhérent : domaines / certifications) */
 .admin-check-grid {
   display: grid;

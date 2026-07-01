@@ -22,6 +22,7 @@ export function AgendaEventForm({ id, initialData }: AgendaEventFormProps) {
     defaultValues: {
       title: initialData?.title ?? '',
       description: initialData?.description ?? '',
+      content: initialData?.content ?? '',
       eventDate: initialData?.eventDate ?? '',
       startTime: initialData?.startTime ?? '',
       location: initialData?.location ?? '',
@@ -56,8 +57,14 @@ export function AgendaEventForm({ id, initialData }: AgendaEventFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className="card" style={{ display: 'grid', gap: '20px' }}>
+    <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ display: 'grid', gap: '20px' }}>
+      {/* ── Bloc 1 : ce qui apparaît dans l'agenda de la home ── */}
+      <section className="card admin-form-block" style={{ display: 'grid', gap: '20px' }}>
+        <header className="admin-form-block-head">
+          <h2>1. Informations de l’agenda</h2>
+          <p>Ce qui s’affiche dans la carte « Agenda OPEN » de la page d’accueil.</p>
+        </header>
+
         <div className="form-field">
           <label htmlFor="title">Titre *</label>
           <input id="title" type="text" {...register('title')} />
@@ -80,7 +87,7 @@ export function AgendaEventForm({ id, initialData }: AgendaEventFormProps) {
             <input id="location" type="text" {...register('location')} />
           </div>
           <div className="form-field">
-            <label htmlFor="sortOrder">Ordre (optionnel)</label>
+            <label htmlFor="sortOrder">Ordre d’affichage (optionnel)</label>
             <input
               id="sortOrder"
               type="number"
@@ -98,15 +105,6 @@ export function AgendaEventForm({ id, initialData }: AgendaEventFormProps) {
 
         <div className="form-grid">
           <div className="form-field">
-            <label htmlFor="detailUrl">URL de détail (optionnel)</label>
-            <input id="detailUrl" type="url" placeholder="https://…" {...register('detailUrl')} />
-            {errors.detailUrl && <p className="field-error">{errors.detailUrl.message}</p>}
-            <label className="checkbox-label" style={{ marginTop: '10px' }}>
-              <input type="checkbox" {...register('isExternalUrl')} />
-              <span>Lien externe (ouvre dans un nouvel onglet)</span>
-            </label>
-          </div>
-          <div className="form-field">
             <label htmlFor="isPublished">Statut</label>
             <select
               id="isPublished"
@@ -116,39 +114,68 @@ export function AgendaEventForm({ id, initialData }: AgendaEventFormProps) {
               <option value="draft">Brouillon</option>
               <option value="published">Publié</option>
             </select>
-            <label className="checkbox-label" style={{ marginTop: '12px' }}>
+          </div>
+          <div className="form-field" style={{ justifyContent: 'flex-end' }}>
+            <label className="checkbox-label">
               <input type="checkbox" {...register('showOnHome')} />
               <span>Afficher dans l’agenda de la home</span>
             </label>
           </div>
         </div>
+      </section>
 
-        {serverError && (
-          <p className="field-error" role="alert">
-            {serverError}
+      {/* ── Bloc 2 : page de détail optionnelle ── */}
+      <section className="card admin-form-block" style={{ display: 'grid', gap: '20px' }}>
+        <header className="admin-form-block-head">
+          <h2>2. Page de détail (optionnelle)</h2>
+          <p>
+            Si vous rédigez un contenu ci-dessous, un bouton « Voir plus » mènera à une page dédiée
+            (<code>/agenda/…</code>). Sinon, vous pouvez pointer vers une URL externe. Laissez tout
+            vide pour un simple événement annoncé, sans lien.
           </p>
-        )}
+        </header>
 
-        <div className="form-actions" style={{ justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button type="button" className="btn btn-secondary" onClick={() => router.push('/admin/agenda')}>
-              Annuler
-            </button>
-            <button type="submit" className="btn" disabled={isSubmitting}>
-              {isSubmitting ? 'Enregistrement…' : id ? 'Mettre à jour' : 'Créer'}
-            </button>
-          </div>
-          {id && (
-            <button
-              type="button"
-              className="btn btn-danger"
-              disabled={deleting}
-              onClick={onDelete}
-            >
-              {deleting ? 'Suppression…' : 'Supprimer'}
-            </button>
-          )}
+        <div className="form-field">
+          <label htmlFor="content">Contenu de la page de détail (Markdown)</label>
+          <textarea id="content" rows={10} {...register('content')} />
+          <p style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
+            Markdown supporté : <code>**gras**</code>, <code>[lien](https://…)</code>, listes avec{' '}
+            <code>- </code>, sous-titres avec <code>## </code>.
+          </p>
+          {errors.content && <p className="field-error">{errors.content.message}</p>}
         </div>
+
+        <div className="form-field">
+          <label htmlFor="detailUrl">…ou une URL externe (au lieu d’une page de détail)</label>
+          <input id="detailUrl" type="url" placeholder="https://…" {...register('detailUrl')} />
+          {errors.detailUrl && <p className="field-error">{errors.detailUrl.message}</p>}
+          <label className="checkbox-label" style={{ marginTop: '10px' }}>
+            <input type="checkbox" {...register('isExternalUrl')} />
+            <span>Lien externe (ouvre dans un nouvel onglet)</span>
+          </label>
+        </div>
+      </section>
+
+      {serverError && (
+        <p className="field-error" role="alert">
+          {serverError}
+        </p>
+      )}
+
+      <div className="form-actions" style={{ justifyContent: 'space-between', marginTop: 0 }}>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button type="button" className="btn btn-secondary" onClick={() => router.push('/admin/agenda')}>
+            Annuler
+          </button>
+          <button type="submit" className="btn" disabled={isSubmitting}>
+            {isSubmitting ? 'Enregistrement…' : id ? 'Mettre à jour' : 'Créer'}
+          </button>
+        </div>
+        {id && (
+          <button type="button" className="btn btn-danger" disabled={deleting} onClick={onDelete}>
+            {deleting ? 'Suppression…' : 'Supprimer'}
+          </button>
+        )}
       </div>
     </form>
   )

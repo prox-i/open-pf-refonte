@@ -33,6 +33,7 @@ export default async function EditAgendaEventPage({ params }: Props) {
         initialData={{
           title: ev.title,
           description: ev.description ?? '',
+          content: ev.content ?? '',
           eventDate: ev.eventDate,
           startTime: ev.startTime ?? '',
           location: ev.location ?? '',

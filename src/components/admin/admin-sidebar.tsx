@@ -40,15 +40,21 @@ export function AdminSidebar({ userName, pendingCount }: AdminSidebarProps) {
 
   return (
     <aside className="admin-sidebar">
-      {/* BO-017 : le logo renvoie vers la home du back-office. BO-022 : vrai logo OPEN. */}
+      {/* BO-017 : le logo renvoie vers la home du BO. Logo identique au front public. */}
       <Link href="/admin" className="brand admin-brand" aria-label="Back-office OPEN, accueil">
-        <Image src="/logo-open.svg" alt="" width={40} height={40} className="admin-brand-logo" />
+        <Image
+          src="/logo-open.png"
+          alt="OPEN"
+          width={97}
+          height={44}
+          className="admin-brand-logo"
+          style={{ height: '40px', width: 'auto' }}
+        />
         <span>
-          <span className="brand-word">OPEN</span>
           <span className="brand-sub">
-            Organisation des Professionnels
+            Back-office
             <br />
-            de l&apos;Économie Numérique
+            Organisation des Professionnels
           </span>
         </span>
       </Link>

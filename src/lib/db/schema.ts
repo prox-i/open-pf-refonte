@@ -265,8 +265,11 @@ export const auditLog = pgTable('audit_log', {
  */
 export const agendaEvents = pgTable('agenda_events', {
   id: uuid('id').primaryKey().defaultRandom(),
+  slug: varchar('slug', { length: 200 }).notNull().unique(),
   title: varchar('title', { length: 200 }).notNull(),
   description: text('description'),
+  // Contenu riche (Markdown) de la page de détail optionnelle (/agenda/[slug]).
+  content: text('content'),
   eventDate: date('event_date').notNull(),
   startTime: varchar('start_time', { length: 5 }), // "HH:MM" optionnel
   location: varchar('location', { length: 200 }),

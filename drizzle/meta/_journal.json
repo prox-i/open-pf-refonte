@@ -43,6 +43,13 @@
       "when": 1782921106373,
       "tag": "0005_blue_sugar_man",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1782929056589,
+      "tag": "0006_complex_power_pack",
+      "breakpoints": true
     }
   ]
 }

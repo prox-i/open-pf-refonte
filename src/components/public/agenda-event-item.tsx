@@ -4,6 +4,10 @@ import type { HomeAgendaEvent } from '@/lib/db/queries/agenda'
 export function AgendaEventItem({ event }: { event: HomeAgendaEvent }) {
   const d = formatAgendaDate(event.eventDate)
 
+  // Priorité : page de détail interne (si contenu), sinon URL externe/interne saisie.
+  const href = event.hasContent ? `/agenda/${event.slug}` : (event.detailUrl ?? null)
+  const isExternal = !event.hasContent && event.isExternalUrl
+
   return (
     <li className="agenda-event">
       <div className="agenda-event-date">
@@ -13,14 +17,12 @@ export function AgendaEventItem({ event }: { event: HomeAgendaEvent }) {
       <div className="agenda-event-body">
         <h4 className="agenda-event-title">{event.title}</h4>
         {event.description && <p className="agenda-event-desc">{event.description}</p>}
-        {event.detailUrl && (
+        {href && (
           <a
             className="agenda-event-more"
-            href={event.detailUrl}
+            href={href}
             aria-label={`Voir plus sur ${event.title}`}
-            {...(event.isExternalUrl
-              ? { target: '_blank', rel: 'noopener noreferrer' }
-              : {})}
+            {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
           >
             Voir plus →
           </a>

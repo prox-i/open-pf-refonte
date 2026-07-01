@@ -9,6 +9,7 @@
 import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
 import * as schema from '../src/lib/db/schema'
+import { toSlug } from '../src/lib/utils'
 
 const { agendaEvents } = schema
 
@@ -35,7 +36,8 @@ async function main() {
 
   await db.delete(agendaEvents)
   await db.insert(agendaEvents).values(
-    REAL_EVENTS.map((e) => ({
+    REAL_EVENTS.map((e, i) => ({
+      slug: `${toSlug(e.title)}-${i + 1}`,
       title: e.title,
       description: e.description,
       eventDate: e.eventDate,

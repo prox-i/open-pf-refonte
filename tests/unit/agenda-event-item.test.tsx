@@ -4,12 +4,14 @@ import { AgendaEventItem } from '@/components/public/agenda-event-item'
 
 const BASE = {
   id: '1',
+  slug: 'assemblee-generale',
   title: 'Assemblée générale ordinaire',
   description: 'Bilan, gouvernance et perspectives.',
   eventDate: '2026-07-04',
   startTime: null,
   detailUrl: null,
   isExternalUrl: false,
+  hasContent: false,
 }
 
 describe('AgendaEventItem', () => {
@@ -28,6 +30,13 @@ describe('AgendaEventItem', () => {
     render(<AgendaEventItem event={{ ...BASE, detailUrl: '/actualites/ag-2026' }} />)
     const link = screen.getByRole('link', { name: /Voir plus/ })
     expect(link).toHaveAttribute('href', '/actualites/ag-2026')
+  })
+
+  it('pointe vers la page de détail interne si l’événement a du contenu', () => {
+    render(<AgendaEventItem event={{ ...BASE, hasContent: true }} />)
+    const link = screen.getByRole('link', { name: /Voir plus/ })
+    expect(link).toHaveAttribute('href', '/agenda/assemblee-generale')
+    expect(link).not.toHaveAttribute('target')
   })
 
   it('ouvre dans un nouvel onglet si lien externe', () => {

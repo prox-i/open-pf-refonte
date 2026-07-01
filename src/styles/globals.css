@@ -2591,6 +2591,23 @@ textarea {
   gap: 16px;
   margin-top: 18px;
 }
+/* Blocs de formulaire admin (sections numérotées) */
+.admin-form-block-head {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 14px;
+}
+.admin-form-block-head h2 {
+  font-size: 18px;
+  color: var(--navy);
+  margin: 0 0 4px;
+}
+.admin-form-block-head p {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
 /* Liste adhérents : sélection groupée, tri, badge fiche */
 .bulk-bar {
   display: flex;

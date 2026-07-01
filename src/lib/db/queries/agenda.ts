@@ -1,16 +1,18 @@
-import { and, asc, desc, eq, gte } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, sql } from 'drizzle-orm'
 import { getDb } from '@/lib/db'
 import { agendaEvents } from '@/lib/db/schema'
 import { tahitiToday } from '@/lib/agenda'
 
 export interface HomeAgendaEvent {
   id: string
+  slug: string
   title: string
   description: string | null
   eventDate: string
   startTime: string | null
   detailUrl: string | null
   isExternalUrl: boolean
+  hasContent: boolean
 }
 
 /**
@@ -25,12 +27,14 @@ export async function getHomeAgendaEvents(): Promise<HomeAgendaEvent[]> {
     return await db
       .select({
         id: agendaEvents.id,
+        slug: agendaEvents.slug,
         title: agendaEvents.title,
         description: agendaEvents.description,
         eventDate: agendaEvents.eventDate,
         startTime: agendaEvents.startTime,
         detailUrl: agendaEvents.detailUrl,
         isExternalUrl: agendaEvents.isExternalUrl,
+        hasContent: sql<boolean>`(${agendaEvents.content} is not null and ${agendaEvents.content} <> '')`,
       })
       .from(agendaEvents)
       .where(
@@ -44,6 +48,22 @@ export async function getHomeAgendaEvents(): Promise<HomeAgendaEvent[]> {
   } catch (e) {
     console.error('[getHomeAgendaEvents]', e)
     return []
+  }
+}
+
+/** Événement publié par slug, pour la page de détail. Null si absent/brouillon. */
+export async function getAgendaEventBySlug(slug: string) {
+  try {
+    const db = getDb()
+    const [event] = await db
+      .select()
+      .from(agendaEvents)
+      .where(and(eq(agendaEvents.slug, slug), eq(agendaEvents.isPublished, true)))
+      .limit(1)
+    return event ?? null
+  } catch (e) {
+    console.error('[getAgendaEventBySlug]', e)
+    return null
   }
 }
 

@@ -33,6 +33,8 @@ export type SiteSettingsData = z.infer<typeof siteSettingsSchema>
 export const agendaEventSchema = z.object({
   title: z.string().trim().min(1, 'Titre requis').max(200, 'Titre trop long'),
   description: z.string().max(500, '500 caractères max.').optional().or(z.literal('')),
+  // Contenu Markdown de la page de détail optionnelle.
+  content: z.string().max(20000, 'Contenu trop long').optional().or(z.literal('')),
   eventDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date requise'),
   startTime: z
     .string()

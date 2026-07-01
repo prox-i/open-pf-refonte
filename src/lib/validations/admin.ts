@@ -1,4 +1,13 @@
 import { z } from 'zod'
+import { memberProfileSchema } from '@/lib/validations/member-profile'
+
+// Édition d'une fiche adhérent depuis le back-office : mêmes champs que la fiche
+// (magic-link) + le nom, éditable par l'admin.
+export const adminMemberEditSchema = memberProfileSchema.extend({
+  name: z.string().trim().min(2, 'Nom requis').max(200),
+})
+
+export type AdminMemberEditData = z.infer<typeof adminMemberEditSchema>
 
 // P6: admin action schemas
 export const adminLoginSchema = z.object({

@@ -2413,6 +2413,25 @@ textarea {
   gap: 16px;
   margin-top: 18px;
 }
+/* Grilles de cases à cocher (édition adhérent : domaines / certifications) */
+.admin-check-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 8px 16px;
+}
+.admin-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.admin-check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--open-magenta);
+  flex-shrink: 0;
+}
 .admin-top h1 {
   font-size: clamp(20px, 2.5vw, 28px);
   color: var(--ink);

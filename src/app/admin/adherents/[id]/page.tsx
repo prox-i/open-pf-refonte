@@ -43,7 +43,12 @@ export default async function AdherentDetailPage({ params }: Props) {
             {member.status}
           </span>
         </div>
-        <MemberActions memberId={id} status={member.status} />
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <Link href={`/admin/adherents/${id}/edit`} className="btn">
+            Éditer la fiche
+          </Link>
+          <MemberActions memberId={id} status={member.status} />
+        </div>
       </div>
 
       <div className="grid-2">

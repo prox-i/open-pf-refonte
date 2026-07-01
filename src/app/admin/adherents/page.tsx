@@ -1,71 +1,104 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { and, count, desc, eq, ilike } from 'drizzle-orm'
+import { and, asc, count, desc, eq, ilike, inArray, sql } from 'drizzle-orm'
 import { getDb } from '@/lib/db'
-import { members } from '@/lib/db/schema'
+import { members, memberActivities } from '@/lib/db/schema'
+import { AdherentsTable, type AdherentRow } from '@/components/admin/adherents-table'
 
 export const metadata: Metadata = { title: 'Adhérents — Admin OPEN PF' }
 
+const STATUS_FILTERS = ['', 'submitted', 'active', 'inactive', 'draft'] as const
 const STATUS_LABELS: Record<string, string> = {
-  draft: 'Brouillon',
   submitted: 'En attente',
   active: 'Actif',
   inactive: 'Inactif',
+  draft: 'Brouillon',
 }
-
-const STATUS_FILTERS = ['', 'submitted', 'active', 'inactive', 'draft'] as const
-const PAGE_SIZE = 20
+const PAGE_SIZE = 25
+type SortCol = 'name' | 'status' | 'date'
 
 interface PageProps {
-  searchParams: Promise<{ q?: string; statut?: string; page?: string }>
+  searchParams: Promise<{ q?: string; statut?: string; page?: string; sort?: string; dir?: string }>
 }
 
 export default async function AdherentsPage({ searchParams }: PageProps) {
-  const { q = '', statut = '', page = '1' } = await searchParams
-  const search = q.trim()
-  const currentPage = Math.max(1, Number.parseInt(page, 10) || 1)
+  const sp = await searchParams
+  const search = (sp.q ?? '').trim()
+  const statut = sp.statut ?? ''
+  const sort: SortCol = (['name', 'status', 'date'] as const).includes(sp.sort as SortCol)
+    ? (sp.sort as SortCol)
+    : 'date'
+  const dir: 'asc' | 'desc' = sp.dir === 'asc' ? 'asc' : 'desc'
+  const currentPage = Math.max(1, Number.parseInt(sp.page ?? '1', 10) || 1)
   const db = getDb()
 
-  // BO-015 : recherche par nom + filtre statut + pagination, côté serveur.
   const conditions = [
     search ? ilike(members.name, `%${search}%`) : undefined,
     statut ? eq(members.status, statut as typeof members.status.enumValues[number]) : undefined,
   ].filter(Boolean)
   const whereClause = conditions.length ? and(...conditions) : undefined
 
+  const sortCol =
+    sort === 'name' ? members.name : sort === 'status' ? members.status : members.createdAt
+  const orderBy = dir === 'asc' ? asc(sortCol) : desc(sortCol)
+
   const [{ total } = { total: 0 }] = await db
     .select({ total: count() })
     .from(members)
     .where(whereClause)
-
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+
   const list = await db
     .select({
       id: members.id,
       name: members.name,
       status: members.status,
       submittedAt: members.submittedAt,
-      reviewedAt: members.reviewedAt,
+      logoUrl: members.logoUrl,
+      description: members.description,
     })
     .from(members)
     .where(whereClause)
-    .orderBy(desc(members.createdAt))
+    .orderBy(orderBy)
     .limit(PAGE_SIZE)
     .offset((currentPage - 1) * PAGE_SIZE)
 
-  function pageHref(targetPage: number) {
-    const params = new URLSearchParams()
-    if (search) params.set('q', search)
-    if (statut) params.set('statut', statut)
-    if (targetPage > 1) params.set('page', String(targetPage))
-    const qs = params.toString()
-    return qs ? `/admin/adherents?${qs}` : '/admin/adherents'
-  }
+  // Nombre de domaines par adhérent (pour « fiche complète »).
+  const ids = list.map((m) => m.id)
+  const domainCounts = ids.length
+    ? await db
+        .select({ memberId: memberActivities.memberId, n: sql<number>`count(*)::int` })
+        .from(memberActivities)
+        .where(inArray(memberActivities.memberId, ids))
+        .groupBy(memberActivities.memberId)
+    : []
+  const domainMap = new Map(domainCounts.map((d) => [d.memberId, d.n]))
+
+  const rows: AdherentRow[] = list.map((m) => ({
+    id: m.id,
+    name: m.name,
+    status: m.status,
+    dateLabel: m.submittedAt ? new Date(m.submittedAt).toLocaleDateString('fr-FR') : '—',
+    // Fiche « complète » : logo + description + au moins un domaine d'activité.
+    complete: Boolean(m.logoUrl) && Boolean(m.description) && (domainMap.get(m.id) ?? 0) > 0,
+  }))
 
   function filterHref(targetStatut: string) {
     const params = new URLSearchParams()
     if (search) params.set('q', search)
     if (targetStatut) params.set('statut', targetStatut)
+    if (sort !== 'date') params.set('sort', sort)
+    if (dir !== 'desc') params.set('dir', dir)
+    const qs = params.toString()
+    return qs ? `/admin/adherents?${qs}` : '/admin/adherents'
+  }
+  function pageHref(target: number) {
+    const params = new URLSearchParams()
+    if (search) params.set('q', search)
+    if (statut) params.set('statut', statut)
+    if (sort !== 'date') params.set('sort', sort)
+    if (dir !== 'desc') params.set('dir', dir)
+    if (target > 1) params.set('page', String(target))
     const qs = params.toString()
     return qs ? `/admin/adherents?${qs}` : '/admin/adherents'
   }
@@ -105,50 +138,7 @@ export default async function AdherentsPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Entreprise</th>
-              <th>Statut</th>
-              <th>Déposé</th>
-              <th>Validé</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.length === 0 ? (
-              <tr>
-                <td colSpan={5} style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px' }}>
-                  Aucun adhérent ne correspond à ces critères.
-                </td>
-              </tr>
-            ) : (
-              list.map((m) => (
-                <tr key={m.id}>
-                  <td style={{ fontWeight: 600 }}>{m.name}</td>
-                  <td>
-                    <span className={`status-badge status-badge--${m.status}`}>
-                      {STATUS_LABELS[m.status] ?? m.status}
-                    </span>
-                  </td>
-                  <td style={{ color: 'var(--muted)', fontSize: '13px' }}>
-                    {m.submittedAt ? new Date(m.submittedAt).toLocaleDateString('fr-FR') : '—'}
-                  </td>
-                  <td style={{ color: 'var(--muted)', fontSize: '13px' }}>
-                    {m.reviewedAt ? new Date(m.reviewedAt).toLocaleDateString('fr-FR') : '—'}
-                  </td>
-                  <td>
-                    <Link href={`/admin/adherents/${m.id}`} className="btn btn-secondary btn-small">
-                      Voir
-                    </Link>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <AdherentsTable rows={rows} sort={sort} dir={dir} q={search} statut={statut} />
 
       {totalPages > 1 && (
         <nav className="admin-pagination" aria-label="Pagination">

@@ -181,46 +181,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="section" id="missions">
-        <div className="container">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Nos missions</span>
-              <h2>Agir ensemble pour faire grandir le numérique polynésien</h2>
-            </div>
-            <p>
-              OPEN agit comme un réseau professionnel, un espace de coordination et une voix
-              collective au service de l&apos;économie numérique locale.
-            </p>
-          </div>
-          <div className="grid-4">
-            {MISSIONS.map((mission) => (
-              <article key={mission.title} className="card mission-card">
-                <div className="card-icon">{mission.icon}</div>
-                <h3>{mission.title}</h3>
-                <p>{mission.description}</p>
-                <div className="card-line" />
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section section-tight" aria-labelledby="adherents-strip-title">
-        <div className="container">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Le réseau OPEN</span>
-              <h2 id="adherents-strip-title">Les adhérents OPEN</h2>
-            </div>
-            <Link href="/adherents" className="btn btn-secondary">
-              Voir tous les adhérents <ArrowIcon />
-            </Link>
-          </div>
-          <MemberShowcase members={featuredMembers} />
-        </div>
-      </section>
-
       {(recentNews.length > 0 || agendaEvents.length > 0) && (
         <section className="section section-tight bg-soft" aria-labelledby="news-home-title">
           <div className="container">
@@ -272,6 +232,46 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      <section className="section" id="missions">
+        <div className="container">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Nos missions</span>
+              <h2>Agir ensemble pour faire grandir le numérique polynésien</h2>
+            </div>
+            <p>
+              OPEN agit comme un réseau professionnel, un espace de coordination et une voix
+              collective au service de l&apos;économie numérique locale.
+            </p>
+          </div>
+          <div className="grid-4">
+            {MISSIONS.map((mission) => (
+              <article key={mission.title} className="card mission-card">
+                <div className="card-icon">{mission.icon}</div>
+                <h3>{mission.title}</h3>
+                <p>{mission.description}</p>
+                <div className="card-line" />
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section section-tight" aria-labelledby="adherents-strip-title">
+        <div className="container">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Le réseau OPEN</span>
+              <h2 id="adherents-strip-title">Les adhérents OPEN</h2>
+            </div>
+            <Link href="/adherents" className="btn btn-secondary">
+              Voir tous les adhérents <ArrowIcon />
+            </Link>
+          </div>
+          <MemberShowcase members={featuredMembers} />
+        </div>
+      </section>
 
       <CtaBand />
     </>

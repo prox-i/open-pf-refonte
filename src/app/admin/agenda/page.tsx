@@ -46,13 +46,20 @@ export default async function AdminAgendaPage() {
                 const d = formatAgendaDate(ev.eventDate)
                 const past = !isUpcoming(ev.eventDate)
                 return (
-                  <tr key={ev.id} style={past ? { opacity: 0.55 } : undefined}>
+                  <tr key={ev.id}>
                     <td style={{ whiteSpace: 'nowrap' }}>
                       {d.day} {d.month} {d.year}
-                      {past && <span style={{ color: 'var(--muted)', fontSize: '12px' }}> · passé</span>}
                     </td>
                     <td style={{ fontWeight: 600 }}>{ev.title}</td>
-                    <td>{ev.isPublished ? 'Oui' : 'Non'}</td>
+                    <td>
+                      {past ? (
+                        <span className="fiche-badge fiche-badge--todo">Passé</span>
+                      ) : ev.isPublished ? (
+                        <span className="fiche-badge fiche-badge--ok">Publié</span>
+                      ) : (
+                        'Brouillon'
+                      )}
+                    </td>
                     <td>{ev.showOnHome ? 'Oui' : 'Non'}</td>
                     <td>{ev.detailUrl ? 'Oui' : '—'}</td>
                     <td>

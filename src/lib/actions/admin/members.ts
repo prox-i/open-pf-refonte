@@ -1,6 +1,6 @@
 'use server'
 
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { getDb } from '@/lib/db'
 import {
@@ -173,6 +173,32 @@ export async function updateMemberByAdmin(
   } catch (e) {
     console.error('[updateMemberByAdmin]', e)
     return { success: false, error: "Erreur lors de l'enregistrement." }
+  }
+}
+
+/** Supprime un ou plusieurs adhérents (cascade DB sur contacts/domaines/certifs/tokens). */
+export async function deleteMembers(
+  memberIds: string[],
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const adminId = await requireAdmin()
+    if (memberIds.length === 0) return { success: true }
+    const db = getDb()
+
+    await db.delete(members).where(inArray(members.id, memberIds))
+    await db.insert(auditLog).values({
+      adminId,
+      action: 'member.delete',
+      targetType: 'member',
+      data: { memberIds },
+    })
+
+    revalidatePath('/admin/adherents')
+    revalidatePath('/adherents')
+    return { success: true }
+  } catch (e) {
+    console.error('[deleteMembers]', e)
+    return { success: false, error: 'Erreur lors de la suppression.' }
   }
 }
 

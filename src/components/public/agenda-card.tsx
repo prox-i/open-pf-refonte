@@ -24,8 +24,6 @@ export function AgendaCard({ events }: { events: HomeAgendaEvent[] }) {
       ) : (
         <p className="agenda-empty">Aucun rendez-vous programmé pour le moment.</p>
       )}
-
-      <p className="agenda-foot">La liste défile dans la carte.</p>
     </aside>
   )
 }

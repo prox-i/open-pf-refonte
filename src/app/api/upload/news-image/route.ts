@@ -10,7 +10,9 @@ import { auth } from '@/auth'
  * qui provoquait « Unexpected end of JSON input ». Plus de traitement `sharp`
  * côté serveur : next/image optimise (webp/avif) à la livraison.
  */
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+// Route partagée avec l'upload de logo adhérent en BO (member-edit-form.tsx),
+// d'où l'ajout du SVG : les logos d'entreprise sont fréquemment vectoriels.
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const body = (await req.json()) as HandleUploadBody

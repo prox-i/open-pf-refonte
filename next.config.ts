@@ -1,12 +1,16 @@
 import type { NextConfig } from 'next'
 
+const isDev = process.env.NODE_ENV === 'development'
+
 const CSP = [
   "default-src 'self'",
   // 'unsafe-inline' required by Next.js 15 for inline <style> tags (CSS-in-JS, theme vars)
   // and for JSON-LD <script type="application/ld+json"> blocks injected at render time.
   // A nonce-based CSP would eliminate this but requires Next.js custom server + middleware,
   // which adds significant operational complexity. Acceptable risk for this project.
-  "script-src 'self' 'unsafe-inline'",
+  // 'unsafe-eval' only in dev: Next.js HMR (webpack eval-source-map) needs it; the
+  // production build never evals, so prod stays strict.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   // fonts.gstatic.com used by Google Fonts CSS import; next/font self-hosts at build time
   // but the fallback CSS reference is still served from Google. data: covers base64 fonts.
@@ -15,7 +19,10 @@ const CSP = [
   "img-src 'self' data: blob: https://open.pf https://www.open.pf https://*.public.blob.vercel-storage.com",
   // worker-src allows Next.js service worker in production builds
   "worker-src 'self' blob:",
-  "connect-src 'self'",
+  // https://vercel.com/api/blob : endpoint utilisé par @vercel/blob/client pour les
+  // uploads directs navigateur -> Blob (actualités, logo adhérent BO, logo via magiclink).
+  // Sans cette autorisation, le navigateur bloque le PUT du fichier après émission du jeton.
+  "connect-src 'self' https://vercel.com",
   // Carte OpenStreetMap intégrée sur /contact (REC-022).
   'frame-src https://www.openstreetmap.org',
   "frame-ancestors 'none'",

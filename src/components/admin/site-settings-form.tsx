@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { siteSettingsSchema, type SiteSettingsData } from '@/lib/validations/admin'
 import { updateSiteSettings } from '@/lib/actions/admin/settings'
+import { RichTextEditor } from './rich-text-editor'
 
 interface SiteSettingsFormProps {
   initial: SiteSettingsData
@@ -103,6 +104,23 @@ export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
               {errors.linkedinUrl && <p className="field-error">{errors.linkedinUrl.message}</p>}
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="card">
+        <h2>Mentions légales</h2>
+        <p style={{ color: 'var(--muted)', fontSize: '14px', marginBottom: '20px' }}>
+          Contenu de la page <code>/mentions-legales</code>. Laissez vide pour garder le contenu
+          par défaut du site.
+        </p>
+        <div className="form-field">
+          <RichTextEditor
+            value={form.watch('legalNoticeContent') ?? ''}
+            onChange={(html) => form.setValue('legalNoticeContent', html, { shouldDirty: true })}
+          />
+          {errors.legalNoticeContent && (
+            <p className="field-error">{errors.legalNoticeContent.message}</p>
+          )}
         </div>
       </section>
 

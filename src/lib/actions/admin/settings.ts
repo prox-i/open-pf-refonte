@@ -49,6 +49,7 @@ export async function updateSiteSettings(
     })
 
   revalidatePath('/contact')
+  revalidatePath('/mentions-legales')
   revalidatePath('/admin/reglages')
   return { success: true }
 }

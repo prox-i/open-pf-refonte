@@ -24,6 +24,8 @@ export interface SiteSettings {
   publicHours: string
   facebookUrl: string
   linkedinUrl: string
+  /** Markdown de /mentions-legales. Vide → la page sert son contenu par défaut. */
+  legalNoticeContent: string
 }
 
 /**
@@ -47,5 +49,6 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
     publicHours: row?.publicHours || SITE_SETTINGS_DEFAULTS.publicHours,
     facebookUrl: row?.facebookUrl || SITE_SETTINGS_DEFAULTS.facebookUrl,
     linkedinUrl: row?.linkedinUrl || SITE_SETTINGS_DEFAULTS.linkedinUrl,
+    legalNoticeContent: row?.legalNoticeContent || '',
   }
 })

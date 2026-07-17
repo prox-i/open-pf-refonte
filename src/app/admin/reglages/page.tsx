@@ -21,6 +21,7 @@ export default async function ReglagesPage() {
           publicHours: settings.publicHours,
           facebookUrl: settings.facebookUrl,
           linkedinUrl: settings.linkedinUrl,
+          legalNoticeContent: settings.legalNoticeContent,
         }}
       />
     </>

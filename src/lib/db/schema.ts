@@ -210,6 +210,9 @@ export const siteSettings = pgTable('site_settings', {
   publicHours: text('public_hours'),
   facebookUrl: text('facebook_url'),
   linkedinUrl: text('linkedin_url'),
+  // Contenu Markdown de /mentions-legales, éditable en BO. Vide → repli sur le
+  // contenu statique par défaut (voir src/lib/settings-defaults.ts).
+  legalNoticeContent: text('legal_notice_content'),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 

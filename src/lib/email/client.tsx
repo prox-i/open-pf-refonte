@@ -2,6 +2,7 @@ import { render } from '@react-email/components'
 import { MagicLinkEmail } from './templates/magic-link'
 import { ReminderEmail } from './templates/reminder'
 import { ContactEmail } from './templates/contact'
+import { ProfileIncompleteReminderEmail } from './templates/profile-incomplete-reminder'
 import { env } from '@/lib/env'
 
 async function sendViaMandrill(message: {
@@ -75,6 +76,31 @@ export async function sendMagicLinkEmail({
 }: SendMagicLinkParams): Promise<void> {
   const html = await render(<MagicLinkEmail memberName={memberName} magicUrl={magicUrl} />)
   const text = `Bonjour,\n\nComplétez la fiche adhérent de ${memberName} sur OPEN PF :\n${magicUrl}\n\nCe lien est valable 30 jours.`
+
+  await sendViaMandrill({
+    to,
+    subject: `Complétez la fiche adhérent de ${memberName} — OPEN PF`,
+    html,
+    text,
+    replyTo: 'contact@open.pf',
+  })
+}
+
+interface SendProfileIncompleteReminderParams {
+  to: string
+  memberName: string
+  magicUrl: string
+}
+
+export async function sendProfileIncompleteReminderEmail({
+  to,
+  memberName,
+  magicUrl,
+}: SendProfileIncompleteReminderParams): Promise<void> {
+  const html = await render(
+    <ProfileIncompleteReminderEmail memberName={memberName} magicUrl={magicUrl} />,
+  )
+  const text = `Bonjour,\n\nLa fiche de ${memberName} sur OPEN PF n'a pas encore été complétée :\n${magicUrl}`
 
   await sendViaMandrill({
     to,

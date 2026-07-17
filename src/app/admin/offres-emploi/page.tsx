@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { getDb } from '@/lib/db'
 import { jobOffers } from '@/lib/db/schema'
 import { desc } from 'drizzle-orm'
+import { DeleteRowButton } from '@/components/admin/delete-row-button'
+import { deleteJob } from '@/lib/actions/admin/content'
 
 export const metadata: Metadata = { title: "Offres d'emploi — Admin OPEN PF" }
 
@@ -55,12 +57,19 @@ export default async function OffresAdminPage() {
                     {j.publishedAt ? new Date(j.publishedAt).toLocaleDateString('fr-FR') : '—'}
                   </td>
                   <td>
-                    <Link
-                      href={`/admin/offres-emploi/${j.id}`}
-                      className="btn btn-secondary btn-small"
-                    >
-                      Éditer
-                    </Link>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <Link
+                        href={`/admin/offres-emploi/${j.id}`}
+                        className="btn btn-secondary btn-small"
+                      >
+                        Éditer
+                      </Link>
+                      <DeleteRowButton
+                        id={j.id}
+                        action={deleteJob}
+                        confirmMessage={`Supprimer définitivement l'offre « ${j.title} » ?`}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

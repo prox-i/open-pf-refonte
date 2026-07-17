@@ -4,6 +4,8 @@ import { getDb } from '@/lib/db'
 import { news } from '@/lib/db/schema'
 import { desc, sql } from 'drizzle-orm'
 import { ArrowIcon } from '@/components/public/arrow-icon'
+import { DeleteRowButton } from '@/components/admin/delete-row-button'
+import { deleteNews } from '@/lib/actions/admin/content'
 
 export const metadata: Metadata = { title: 'Actualités — Admin OPEN PF' }
 
@@ -59,12 +61,19 @@ export default async function ActualitesAdminPage() {
                     {n.publishedAt ? new Date(n.publishedAt).toLocaleDateString('fr-FR') : '—'}
                   </td>
                   <td>
-                    <Link
-                      href={`/admin/actualites/${n.id}`}
-                      className="btn btn-secondary btn-small"
-                    >
-                      Éditer
-                    </Link>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <Link
+                        href={`/admin/actualites/${n.id}`}
+                        className="btn btn-secondary btn-small"
+                      >
+                        Éditer
+                      </Link>
+                      <DeleteRowButton
+                        id={n.id}
+                        action={deleteNews}
+                        confirmMessage={`Supprimer définitivement l'actualité « ${n.title} » ?`}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}

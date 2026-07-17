@@ -135,6 +135,8 @@ export function SiteFooter({
           <Link href="/mentions-legales">Mentions légales</Link>
           {' · '}
           <Link href="/confidentialite">Politique de confidentialité</Link>
+          {' · '}
+          <Link href="/politique-cookies">Politique de cookies</Link>
         </span>
       </div>
     </footer>

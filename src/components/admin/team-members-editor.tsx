@@ -8,6 +8,7 @@ export interface TeamMemberRow {
   id: string
   fullName: string
   role: string
+  professionalRole: string | null
   photoUrl: string | null
   sortOrder: number
   isActive: boolean
@@ -17,7 +18,14 @@ interface Props {
   members: TeamMemberRow[]
 }
 
-const EMPTY = { fullName: '', role: '', photoUrl: '', sortOrder: 0, isActive: true }
+const EMPTY = {
+  fullName: '',
+  role: '',
+  professionalRole: '',
+  photoUrl: '',
+  sortOrder: 0,
+  isActive: true,
+}
 
 export function TeamMembersEditor({ members }: Props) {
   const router = useRouter()
@@ -45,7 +53,8 @@ export function TeamMembersEditor({ members }: Props) {
         <thead>
           <tr>
             <th>Nom</th>
-            <th>Rôle</th>
+            <th>Rôle (bureau)</th>
+            <th>Fonction pro.</th>
             <th style={{ width: '70px' }}>Ordre</th>
             <th style={{ width: '70px' }}>Actif</th>
             <th style={{ width: '160px' }}>Actions</th>
@@ -70,6 +79,14 @@ export function TeamMembersEditor({ members }: Props) {
                 placeholder="Rôle"
                 value={adding.role}
                 onChange={(e) => setAdding({ ...adding, role: e.target.value })}
+              />
+            </td>
+            <td>
+              <input
+                type="text"
+                placeholder="Poste + entreprise"
+                value={adding.professionalRole}
+                onChange={(e) => setAdding({ ...adding, professionalRole: e.target.value })}
               />
             </td>
             <td>
@@ -109,6 +126,7 @@ function MemberRow({ member, onChange }: { member: TeamMemberRow; onChange: () =
   const [draft, setDraft] = useState({
     fullName: member.fullName,
     role: member.role,
+    professionalRole: member.professionalRole ?? '',
     photoUrl: member.photoUrl ?? '',
     sortOrder: member.sortOrder,
     isActive: member.isActive,
@@ -117,6 +135,7 @@ function MemberRow({ member, onChange }: { member: TeamMemberRow; onChange: () =
   const dirty =
     draft.fullName !== member.fullName ||
     draft.role !== member.role ||
+    draft.professionalRole !== (member.professionalRole ?? '') ||
     draft.sortOrder !== member.sortOrder ||
     draft.isActive !== member.isActive
 
@@ -149,6 +168,14 @@ function MemberRow({ member, onChange }: { member: TeamMemberRow; onChange: () =
           type="text"
           value={draft.role}
           onChange={(e) => setDraft({ ...draft, role: e.target.value })}
+        />
+      </td>
+      <td>
+        <input
+          type="text"
+          placeholder="Poste + entreprise"
+          value={draft.professionalRole}
+          onChange={(e) => setDraft({ ...draft, professionalRole: e.target.value })}
         />
       </td>
       <td>

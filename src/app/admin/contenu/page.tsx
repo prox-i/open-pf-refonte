@@ -35,6 +35,7 @@ export default async function ContenuPage() {
             id: m.id,
             fullName: m.fullName,
             role: m.role,
+            professionalRole: m.professionalRole,
             photoUrl: m.photoUrl,
             sortOrder: m.sortOrder,
             isActive: m.isActive,

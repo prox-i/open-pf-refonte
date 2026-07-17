@@ -1,13 +1,19 @@
 import Image from 'next/image'
-import type { BoardMember } from '@/lib/data/board-members'
 import { getInitials, colorFor } from '@/components/public/member-logo'
 
+export interface BoardMemberCardData {
+  fullName: string
+  role: string
+  professionalRole: string | null
+  photoUrl: string | null
+}
+
 interface BoardMemberCardProps {
-  member: BoardMember
+  member: BoardMemberCardData
 }
 
 export function BoardMemberCard({ member }: BoardMemberCardProps) {
-  const { name, openRole, professionalRole, photoUrl } = member
+  const { fullName: name, role: openRole, professionalRole, photoUrl } = member
 
   return (
     <article className="board-card">
@@ -28,7 +34,7 @@ export function BoardMemberCard({ member }: BoardMemberCardProps) {
 
       <p className="board-card-role">{openRole}</p>
       <h3 className="board-card-name">{name}</h3>
-      <p className="board-card-job">{professionalRole}</p>
+      {professionalRole && <p className="board-card-job">{professionalRole}</p>}
     </article>
   )
 }

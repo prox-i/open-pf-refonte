@@ -169,6 +169,7 @@ export async function deleteJob(id: string): Promise<{ success: boolean }> {
 const teamMemberSchema = z.object({
   fullName: z.string().min(1, 'Nom requis'),
   role: z.string().min(1, 'Rôle requis'),
+  professionalRole: z.string().max(200).optional().or(z.literal('')),
   photoUrl: z.string().url('URL invalide').optional().or(z.literal('')),
   sortOrder: z.coerce.number().int().min(0).default(0),
   isActive: z.boolean().default(true),
@@ -194,6 +195,7 @@ export async function upsertTeamMember(
   const values = {
     fullName: d.fullName,
     role: d.role,
+    professionalRole: d.professionalRole || null,
     photoUrl: d.photoUrl || null,
     sortOrder: d.sortOrder,
     isActive: d.isActive,

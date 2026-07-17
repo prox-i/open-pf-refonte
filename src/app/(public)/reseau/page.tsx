@@ -1,9 +1,12 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { eq } from 'drizzle-orm'
 import { CtaBand } from '@/components/public/cta-band'
 import { ArrowIcon } from '@/components/public/arrow-icon'
 import { BoardMemberCard } from '@/components/public/board-member-card'
-import { BOARD_MEMBERS, BOARD_TERM } from '@/lib/data/board-members'
+import { getDb } from '@/lib/db'
+import { teamMembers } from '@/lib/db/schema'
+import { BOARD_TERM } from '@/lib/data/board-term'
 import { buildBreadcrumbJsonLd } from '@/lib/seo'
 
 export const metadata: Metadata = {
@@ -98,7 +101,14 @@ const TIMELINE = [
   { year: 2026, description: 'Refonte du site et lancement de la plateforme numérique' },
 ]
 
-export default function ReseauPage() {
+export default async function ReseauPage() {
+  const db = getDb()
+  const boardMembers = await db
+    .select()
+    .from(teamMembers)
+    .where(eq(teamMembers.isActive, true))
+    .orderBy(teamMembers.sortOrder)
+
   const breadcrumbJsonLd = buildBreadcrumbJsonLd([
     { name: 'Accueil', href: '/' },
     { name: 'Le réseau', href: '/reseau' },
@@ -166,8 +176,8 @@ export default function ReseauPage() {
             </p>
           </div>
           <div className="board-grid">
-            {BOARD_MEMBERS.map((member) => (
-              <BoardMemberCard key={member.name} member={member} />
+            {boardMembers.map((member) => (
+              <BoardMemberCard key={member.id} member={member} />
             ))}
           </div>
         </div>

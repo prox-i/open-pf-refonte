@@ -178,7 +178,10 @@ export const partners = pgTable('partners', {
 export const teamMembers = pgTable('team_members', {
   id: uuid('id').primaryKey().defaultRandom(),
   fullName: varchar('full_name', { length: 200 }).notNull(),
+  // Fonction au sein du bureau OPEN (Président, Trésorier, Assesseur…).
   role: varchar('role', { length: 120 }).notNull(),
+  // Fonction professionnelle (poste + entreprise), affichée sous le nom sur /reseau.
+  professionalRole: varchar('professional_role', { length: 200 }),
   photoUrl: text('photo_url'),
   sortOrder: integer('sort_order').notNull().default(0),
   isActive: boolean('is_active').notNull().default(true),

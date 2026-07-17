@@ -609,7 +609,10 @@ p {
 .hero-inner {
   position: relative;
   z-index: 1;
-  padding: 84px 0;
+  /* padding-top/bottom only : un `padding: 84px 0` écraserait le padding-left/right
+     hérité de .container (gouttière mobile, MOB-024). */
+  padding-top: 84px;
+  padding-bottom: 84px;
   display: grid;
   grid-template-columns: 1fr 0.92fr;
   gap: 54px;

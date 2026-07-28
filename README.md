@@ -55,3 +55,5 @@ VALUES ('admin@open.pf', '<hash>', 'Admin OPEN PF');
 ## Spécifications
 
 Voir `architecture.md`, `DECISIONS.md`, `seeds/` et `mockup/` pour le détail du projet.
+
+<!-- test auto-deploy Vercel: 23bb1ab -->

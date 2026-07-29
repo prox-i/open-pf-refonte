@@ -19,8 +19,9 @@ const envSchema = z.object({
   // Cron
   CRON_SECRET: z.string().min(16),
 
-  // Storage
-  BLOB_READ_WRITE_TOKEN: z.string().min(1),
+  // Storage — le store Blob est connecté au projet Vercel sous le préfixe "OPEN"
+  // (pas le défaut "BLOB" attendu par le SDK), d'où ce nom de variable.
+  OPEN_READ_WRITE_TOKEN: z.string().min(1),
 
   // Analytics & monitoring (optional in dev)
   NEXT_PUBLIC_PLAUSIBLE_DOMAIN: z.string().optional(),

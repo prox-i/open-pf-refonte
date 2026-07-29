@@ -341,7 +341,7 @@ BREVO_SENDER_NAME=OPEN PF
 CRON_SECRET=...                  # protège /api/cron/*
 
 # Storage
-BLOB_READ_WRITE_TOKEN=...        # Vercel Blob
+OPEN_READ_WRITE_TOKEN=...        # Vercel Blob (store connecté sous le préfixe "OPEN", pas le défaut "BLOB")
 
 # Analytics & monitoring
 NEXT_PUBLIC_PLAUSIBLE_DOMAIN=open.pf

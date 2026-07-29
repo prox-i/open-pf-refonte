@@ -4,12 +4,18 @@ import { and, eq, gt, isNull } from 'drizzle-orm'
 import { getDb } from '@/lib/db'
 import { memberTokens } from '@/lib/db/schema'
 import { hashMagicToken, verifyMagicToken } from '@/lib/auth/magic-link'
+import { env } from '@/lib/env'
 
 /**
  * Upload du logo d'un adhérent depuis sa fiche (magic-link) — flux CLIENT direct
  * vers Vercel Blob. Le jeton magique est transmis via `clientPayload` et validé
  * ici avant d'émettre le jeton d'upload. Contourne la limite de taille des
  * fonctions serverless et supprime `sharp` (cause de « Unexpected end of JSON input »).
+ *
+ * Le store Blob est connecté au projet Vercel sous le préfixe "OPEN" plutôt que
+ * le défaut "BLOB" : on passe donc `token` explicitement à `handleUpload`, sans
+ * quoi le SDK retombe sur `BLOB_READ_WRITE_TOKEN` (obsolète, store inexistant)
+ * et l'upload échoue avec « Vercel Blob: Failed to retrieve the client token ».
  */
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']
 
@@ -19,6 +25,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const jsonResponse = await handleUpload({
       body,
       request: req,
+      token: env.OPEN_READ_WRITE_TOKEN,
       onBeforeGenerateToken: async (_pathname, clientPayload) => {
         const token = clientPayload
         if (!token || !verifyMagicToken(token)) throw new Error('Token invalide')

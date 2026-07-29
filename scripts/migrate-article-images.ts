@@ -11,7 +11,7 @@
  *
  * Pré-requis (dans .env.local ou l'environnement) :
  *   - DATABASE_URL              (Neon, base de PRODUCTION)
- *   - BLOB_READ_WRITE_TOKEN     (Vercel Blob)
+ *   - OPEN_READ_WRITE_TOKEN     (Vercel Blob — store connecté sous le préfixe "OPEN")
  *
  * Lancer :
  *   pnpm tsx --env-file .env.local scripts/migrate-article-images.ts          # dry-run
@@ -37,6 +37,12 @@ function getDb() {
   return drizzle(neon(url), { schema })
 }
 
+function getBlobToken(): string {
+  const token = process.env['OPEN_READ_WRITE_TOKEN']
+  if (!token) throw new Error('OPEN_READ_WRITE_TOKEN manquant (passer --env-file .env.local)')
+  return token
+}
+
 async function downloadAndUpload(srcUrl: string): Promise<string> {
   const res = await fetch(srcUrl)
   if (!res.ok) throw new Error(`HTTP ${res.status} sur ${srcUrl}`)
@@ -48,6 +54,7 @@ async function downloadAndUpload(srcUrl: string): Promise<string> {
     access: 'public',
     contentType,
     addRandomSuffix: true,
+    token: getBlobToken(),
   })
   return blob.url
 }

@@ -65,6 +65,7 @@ export async function upsertNews(
       .where(eq(news.id, id))
     revalidatePath('/admin/actualites')
     revalidatePath('/actualites')
+    revalidatePath('/')
     return { success: true, id }
   }
 
@@ -86,6 +87,7 @@ export async function upsertNews(
 
   revalidatePath('/admin/actualites')
   revalidatePath('/actualites')
+  revalidatePath('/')
   return { success: true, ...(inserted?.id ? { id: inserted.id } : {}) }
 }
 
@@ -95,6 +97,7 @@ export async function deleteNews(id: string): Promise<{ success: boolean }> {
   await db.delete(news).where(eq(news.id, id))
   revalidatePath('/admin/actualites')
   revalidatePath('/actualites')
+  revalidatePath('/')
   return { success: true }
 }
 

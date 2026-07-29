@@ -277,7 +277,10 @@ body {
 .footer-bottom {
   border-top: 1px solid rgba(255, 255, 255, 0.15);
   margin-top: 40px;
-  padding: 22px 0;
+  /* padding-top/bottom only : un `padding: 22px 0` écraserait le padding-left/right
+     hérité de .container (gouttière mobile, MOB-024) — même bug que .hero-inner. */
+  padding-top: 22px;
+  padding-bottom: 22px;
   display: flex;
   justify-content: space-between;
   gap: 20px;
@@ -1397,7 +1400,10 @@ p {
   grid-template-columns: 1fr 1.1fr auto;
   gap: 34px;
   align-items: center;
-  padding: 36px 0;
+  /* padding-top/bottom only : un `padding: 36px 0` écraserait le padding-left/right
+     hérité de .container (gouttière mobile, MOB-024) — même bug que .hero-inner. */
+  padding-top: 36px;
+  padding-bottom: 36px;
 }
 .cta-band h2 {
   font-size: 31px;
@@ -3012,7 +3018,11 @@ textarea {
 .hero-directory .hero-inner {
   grid-template-columns: 1fr;
   max-width: 880px;
-  padding: 72px 0 96px;
+  /* padding-top/bottom only : cette règle est plus spécifique que .hero-inner et
+     écraserait de nouveau son padding-left/right (gouttière mobile, MOB-024)
+     si on gardait le shorthand `padding: 72px 0 96px`. */
+  padding-top: 72px;
+  padding-bottom: 96px;
 }
 
 /* ─── Directory stats strip ─────────────────────────────────── */
@@ -3221,7 +3231,10 @@ textarea {
 /* ─── Responsive additions ──────────────────────────────────── */
 @media (max-width: 980px) {
   .hero-directory .hero-inner {
-    padding: 44px 0 72px;
+    /* padding-top/bottom only : voir commentaire sur la règle non-responsive
+       ci-dessus (gouttière mobile .container, MOB-024). */
+    padding-top: 44px;
+    padding-bottom: 72px;
   }
   .directory-stats {
     grid-template-columns: 1fr;

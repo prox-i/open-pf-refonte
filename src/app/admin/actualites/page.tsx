@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getDb } from '@/lib/db'
 import { news } from '@/lib/db/schema'
-import { desc, sql } from 'drizzle-orm'
+import { desc } from 'drizzle-orm'
 import { ArrowIcon } from '@/components/public/arrow-icon'
 import { DeleteRowButton } from '@/components/admin/delete-row-button'
 import { deleteNews } from '@/lib/actions/admin/content'
@@ -20,9 +20,9 @@ export default async function ActualitesAdminPage() {
       updatedAt: news.updatedAt,
     })
     .from(news)
-    // Chronologique depuis aujourd'hui : les plus récentes en haut, on remonte le
-    // temps en scrollant. NULLS LAST → les brouillons sans date de publication en bas.
-    .orderBy(sql`${news.publishedAt} desc nulls last`, desc(news.createdAt))
+    // Tri sur la date de création (pas publishedAt, null pour les brouillons) :
+    // toute nouvelle actu, brouillon ou publiée, remonte en haut du listing.
+    .orderBy(desc(news.createdAt))
 
   return (
     <>

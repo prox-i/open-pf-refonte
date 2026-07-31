@@ -11,6 +11,7 @@ import { getHomeAgendaEvents } from '@/lib/db/queries/agenda'
 import { AgendaCard } from '@/components/public/agenda-card'
 import { getDailySeed } from '@/lib/random/seeded-shuffle'
 import { formatDate } from '@/lib/utils'
+import { getSiteSettings } from '@/lib/settings'
 
 // Order is deterministic per day (seededShuffle + daily seed), so we can cache
 // the page with ISR instead of recomputing on every request — measurable TTFB win.
@@ -89,13 +90,20 @@ const MISSIONS = [
 ]
 
 export default async function HomePage() {
-  const [featuredMembers, { memberCount, employeeCount, domainCount }, recentNews, agendaEvents] =
-    await Promise.all([
-      getFeaturedMembers(12, { seed: `home:${getDailySeed()}` }),
-      getSiteStats(),
-      getRecentNews(2),
-      getHomeAgendaEvents(),
-    ])
+  const [
+    featuredMembers,
+    { memberCount, employeeCount, domainCount },
+    recentNews,
+    agendaEvents,
+    { homeHeroImageUrl },
+  ] = await Promise.all([
+    getFeaturedMembers(12, { seed: `home:${getDailySeed()}` }),
+    getSiteStats(),
+    getRecentNews(2),
+    getHomeAgendaEvents(),
+    getSiteSettings(),
+  ])
+  const heroImageSrc = homeHeroImageUrl || '/hero-illustration.png'
 
   return (
     <>
@@ -120,7 +128,7 @@ export default async function HomePage() {
           </div>
           <div className="hero-visual" style={{ position: 'relative', overflow: 'hidden' }}>
             <Image
-              src="/hero-illustration.png"
+              src={heroImageSrc}
               alt="Professionnelle polynésienne du numérique"
               fill
               // REC-030 : le hero occupe ~50% en desktop, 100% en mobile. Sans `sizes`,

@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { upload } from '@vercel/blob/client'
 import { siteSettingsSchema, type SiteSettingsData } from '@/lib/validations/admin'
 import { updateSiteSettings } from '@/lib/actions/admin/settings'
 import { RichTextEditor } from './rich-text-editor'
@@ -14,6 +15,9 @@ interface SiteSettingsFormProps {
 export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
   const [saved, setSaved] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
   const form = useForm<SiteSettingsData>({
     resolver: zodResolver(siteSettingsSchema),
@@ -24,6 +28,28 @@ export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
     register,
     formState: { errors, isSubmitting },
   } = form
+
+  async function handleHeroImageFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    setUploadError(null)
+    try {
+      // Upload direct navigateur → Vercel Blob (pas de limite de body serverless).
+      const blob = await upload(file.name, file, {
+        access: 'public',
+        handleUploadUrl: '/api/upload/news-image',
+      })
+      form.setValue('homeHeroImageUrl', blob.url, { shouldValidate: true, shouldDirty: true })
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Erreur upload')
+    } finally {
+      setUploading(false)
+      e.target.value = ''
+    }
+  }
+
+  const heroPreviewUrl = form.watch('homeHeroImageUrl')
 
   async function handleSubmit(data: SiteSettingsData) {
     setServerError(null)
@@ -104,6 +130,56 @@ export function SiteSettingsForm({ initial }: SiteSettingsFormProps) {
               {errors.linkedinUrl && <p className="field-error">{errors.linkedinUrl.message}</p>}
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="card">
+        <h2>Image d&apos;accueil</h2>
+        <p style={{ color: 'var(--muted)', fontSize: '14px', marginBottom: '20px' }}>
+          Illustration affichée dans le hero de la page d&apos;accueil. Laissez vide pour garder
+          l&apos;image par défaut du site.
+        </p>
+        <div className="form-field">
+          <label>Image</label>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input
+              id="homeHeroImageUrl"
+              type="url"
+              placeholder="https://… ou choisissez un fichier →"
+              style={{ flex: 1, minWidth: 0 }}
+              {...register('homeHeroImageUrl')}
+            />
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ whiteSpace: 'nowrap', flexShrink: 0 }}
+              disabled={uploading}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {uploading ? 'Conversion…' : 'Choisir'}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              style={{ display: 'none' }}
+              onChange={handleHeroImageFile}
+            />
+          </div>
+          {uploadError && <p className="field-error">{uploadError}</p>}
+          {errors.homeHeroImageUrl && <p className="field-error">{errors.homeHeroImageUrl.message}</p>}
+          {heroPreviewUrl && (
+            <img
+              src={heroPreviewUrl}
+              alt=""
+              style={{ marginTop: '8px', maxHeight: '140px', borderRadius: '8px', objectFit: 'cover' }}
+              referrerPolicy="no-referrer"
+            />
+          )}
+          <p style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
+            JPEG / PNG / WebP, max 5 Mo. Format portrait recommandé (l&apos;image occupe ~50% du hero
+            en desktop).
+          </p>
         </div>
       </section>
 

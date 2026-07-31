@@ -216,6 +216,9 @@ export const siteSettings = pgTable('site_settings', {
   // Contenu Markdown de /mentions-legales, éditable en BO. Vide → repli sur le
   // contenu statique par défaut (voir src/lib/settings-defaults.ts).
   legalNoticeContent: text('legal_notice_content'),
+  // Image du hero de la home (upload Blob), éditable en BO. Vide → repli sur
+  // /public/hero-illustration.png.
+  homeHeroImageUrl: text('home_hero_image_url'),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 

@@ -51,5 +51,6 @@ export async function updateSiteSettings(
   revalidatePath('/contact')
   revalidatePath('/mentions-legales')
   revalidatePath('/admin/reglages')
+  revalidatePath('/')
   return { success: true }
 }

@@ -27,6 +27,8 @@ export const siteSettingsSchema = z.object({
   linkedinUrl: z.string().url('URL invalide').or(z.literal('')),
   // Contenu Markdown de /mentions-legales ; vide → repli sur le texte par défaut.
   legalNoticeContent: z.string().max(20000, 'Contenu trop long').optional().or(z.literal('')),
+  // Image du hero de la home ; vide → repli sur /hero-illustration.png.
+  homeHeroImageUrl: z.string().url('URL invalide').optional().or(z.literal('')),
 })
 
 export type SiteSettingsData = z.infer<typeof siteSettingsSchema>

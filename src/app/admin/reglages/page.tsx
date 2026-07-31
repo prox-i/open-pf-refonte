@@ -22,6 +22,7 @@ export default async function ReglagesPage() {
           facebookUrl: settings.facebookUrl,
           linkedinUrl: settings.linkedinUrl,
           legalNoticeContent: settings.legalNoticeContent,
+          homeHeroImageUrl: settings.homeHeroImageUrl,
         }}
       />
     </>

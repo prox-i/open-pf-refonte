@@ -26,6 +26,8 @@ export interface SiteSettings {
   linkedinUrl: string
   /** Markdown de /mentions-legales. Vide → la page sert son contenu par défaut. */
   legalNoticeContent: string
+  /** Image du hero de la home. Vide → repli sur /hero-illustration.png. */
+  homeHeroImageUrl: string
 }
 
 /**
@@ -50,5 +52,6 @@ export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
     facebookUrl: row?.facebookUrl || SITE_SETTINGS_DEFAULTS.facebookUrl,
     linkedinUrl: row?.linkedinUrl || SITE_SETTINGS_DEFAULTS.linkedinUrl,
     legalNoticeContent: row?.legalNoticeContent || '',
+    homeHeroImageUrl: row?.homeHeroImageUrl || '',
   }
 })

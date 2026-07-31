@@ -220,3 +220,39 @@ home : **2 actualités + 1 carte agenda** (au lieu de 3 actualités). Détail co
 - **Back-office** : rubrique « Agenda » (liste + formulaire create/update/delete,
   publier/dépublier, afficher sur la home).
 - **Prod** : appliquer la migration `0005` puis (optionnel) `pnpm seed:agenda`.
+
+---
+
+## 🔧 14. Suivi recette post-lancement (27–30/06/2026)
+
+Correctifs sur retours Damien après remise en ligne. Voir aussi les messages de commit
+(`0c99d84`, `4864079`, `31beab5`, `868b1a5`, `91676d4`, `15f4576`) pour le détail technique.
+
+- **⚠️ Piège Vercel Blob — `OPEN_READ_WRITE_TOKEN`, pas `BLOB_READ_WRITE_TOKEN`** : le
+  store Blob du projet est connecté sous le préfixe **`OPEN_`** (`OPEN_STORE_ID`,
+  `OPEN_READ_WRITE_TOKEN`), pas le préfixe par défaut `BLOB_` attendu implicitement par
+  le SDK `@vercel/blob`. Une variable `BLOB_READ_WRITE_TOKEN` orpheline (antérieure au
+  store actuel) traînait en prod et cassait tous les uploads (« Failed to retrieve the
+  client token »). **Toujours passer `token: env.OPEN_READ_WRITE_TOKEN` explicitement**
+  à `handleUpload`/`put` — ne jamais compter sur le nom de variable par défaut du SDK
+  dans ce projet.
+- **Lien GitHub ↔ Vercel réactivé** : l'app GitHub de Vercel n'était plus autorisée sur
+  l'org `prox-i` (repo transféré à Arthur). Reconnecté via `vercel git connect` ; un
+  push sur `main` déclenche à nouveau un déploiement prod automatique.
+- **Image d'accueil éditable en BO** : champ `home_hero_image_url` sur `site_settings`
+  (migration `0009`), même pattern que `legal_notice_content` — vide → repli sur
+  `/hero-illustration.png`. Upload via `/admin/reglages` (flux Blob des actus).
+- **Revalidation `/`** manquante sur `upsertNews`/`deleteNews` et `updateSiteSettings` —
+  une actu publiée ou un réglage modifié pouvait mettre jusqu'à 1 h (cache ISR) à
+  apparaître sur la home. Ajout de `revalidatePath('/')` dans les deux.
+- **Gouttière mobile (`.container`)** : le bug corrigé une première fois sur `.hero-inner`
+  (commit `aa7ac31`) existait aussi sur `.cta-inner`, `.hero-directory .hero-inner`
+  (base + media query 980px) et `.footer-bottom` — même cause (shorthand `padding: Npx 0`
+  qui écrase le `padding-left/right` hérité de `.container`). Vérifier ce pattern sur
+  tout nouvel élément combinant une classe custom avec `.container`.
+- **Tri `/admin/actualites`** : sur `createdAt` seul, plus sur `publishedAt` (toujours
+  `null` pour un brouillon) — sans quoi tout brouillon retombe en bas du listing.
+- **Scroll post-soumission** (`/adhesion`, `/contact`) : le message de succès remplace
+  un formulaire plus long au même endroit du DOM ; sans `scrollIntoView` dédié sur le
+  passage en `submitted`, le scroll reste clampé en bas d'une page devenue plus courte.
+  Même remède que le `scrollIntoView` déjà en place sur le changement d'étape.

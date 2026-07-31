@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowIcon } from '@/components/public/arrow-icon'
@@ -10,6 +10,14 @@ import { submitContact } from '@/lib/actions/contact'
 export function ContactForm() {
   const [submitted, setSubmitted] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
+  const successRef = useRef<HTMLDivElement>(null)
+
+  // Le message de confirmation est bien plus court que le formulaire : sans
+  // recentrer le scroll, la page rétrécit et l'utilisateur reste sur le
+  // scroll du bas (footer), le message restant hors champ plus haut.
+  useEffect(() => {
+    if (submitted) successRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [submitted])
 
   const {
     register,
@@ -36,7 +44,7 @@ export function ContactForm() {
 
   if (submitted) {
     return (
-      <div className="form-shell" role="status" aria-live="polite">
+      <div className="form-shell" role="status" aria-live="polite" ref={successRef}>
         <div className="contact-success">
           <svg viewBox="0 0 48 48" aria-hidden="true" fill="none" className="contact-success__icon">
             <circle cx="24" cy="24" r="21" stroke="currentColor" strokeWidth="3" />

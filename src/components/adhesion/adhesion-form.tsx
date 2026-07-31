@@ -93,6 +93,7 @@ export function AdhesionForm({ onSuccess, onClose }: AdhesionFormProps) {
   // vue restait en bas de page (l'étape suivante, plus courte, laissait le scroll
   // sur le footer) → impression d'être « envoyé au footer ».
   const shellRef = useRef<HTMLDivElement>(null)
+  const successRef = useRef<HTMLDivElement>(null)
   const mountedRef = useRef(false)
   useEffect(() => {
     if (!mountedRef.current) {
@@ -101,6 +102,13 @@ export function AdhesionForm({ onSuccess, onClose }: AdhesionFormProps) {
     }
     shellRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [step])
+
+  // Même problème à la soumission finale : la vue de succès (plus courte que
+  // le formulaire) remplace .adhesion-shell, qui ne porte plus shellRef —
+  // ref dédiée pour recentrer le scroll sur ce nouveau contenu.
+  useEffect(() => {
+    if (submitted) successRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [submitted])
 
   async function handleNext() {
     setServerError(null)
@@ -194,7 +202,7 @@ export function AdhesionForm({ onSuccess, onClose }: AdhesionFormProps) {
 
   if (submitted) {
     return (
-      <div className="adhesion-success">
+      <div className="adhesion-success" ref={successRef}>
         <div className="adhesion-success-icon" aria-hidden="true">
           <svg viewBox="0 0 48 48" fill="none" width="48" height="48">
             <circle cx="24" cy="24" r="24" fill="var(--open-magenta)" opacity=".12" />
